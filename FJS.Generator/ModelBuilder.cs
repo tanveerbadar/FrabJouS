@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using FJS.Generator.Model;
 using Microsoft.CodeAnalysis;
@@ -10,6 +11,7 @@ namespace FJS.Generator
         public static Host GatherSerializableTypes(SyntaxNode node, SemanticModel semanticModel)
         {
             var cls = (ClassDeclarationSyntax)node;
+            Dictionary<string, TypeData> visited = new();
             var enabled = cls.AttributeLists
                             .SelectMany(list =>
                                 list.Attributes.Where(attr => attr.Name.ToString() == "RootType"))
@@ -19,10 +21,12 @@ namespace FJS.Generator
                                     .ArgumentList
                                     .Arguments[0]
                                     .Expression;
-                                var enabledType = ((SimpleNameSyntax)arg.Type).Identifier.Text;
-                                var sym = (INamedTypeSymbol)semanticModel.Compilation.GetSymbolsWithName(enabledType).First();
-                                return GatherTypeData(sym, enabledType);
-                            });
+                                var enabledType = GetFQName(arg.Type);
+                                return (EnabledType: enabledType,
+                                    Symbol: (INamedTypeSymbol)semanticModel.Compilation.GetSymbolsWithName(enabledType).FirstOrDefault());
+                            })
+                            .Where(sym => sym.Symbol != null)
+                            .Select(sym => GatherTypeData(sym.Symbol, sym.EnabledType, visited));
 
             var host = new Host
             {
@@ -32,12 +36,30 @@ namespace FJS.Generator
             return host;
         }
 
-        static TypeData GatherTypeData(INamedTypeSymbol sym, string typeName)
+        static string GetFQName(TypeSyntax type)
         {
+            return type switch
+            {
+                SimpleNameSyntax sn => sn.Identifier.Text,
+                QualifiedNameSyntax qn => string.Join(".", GetFQName(qn.Left), GetFQName(qn.Right)),
+                null => null,
+                _ => string.Empty,
+            };
+        }
+
+        static TypeData GatherTypeData(INamedTypeSymbol sym, string typeName, Dictionary<string, TypeData> visited)
+        {
+            if (visited.TryGetValue(typeName, out var existing))
+            {
+                return existing;
+            }
+
             var typeData = new TypeData
             {
                 Name = typeName,
             };
+
+            visited[typeName] = typeData;
 
             var props = sym
                 .GetMembers()
@@ -63,10 +85,10 @@ namespace FJS.Generator
                     CollectionElementType = p.Type switch
                     {
                         IArrayTypeSymbol at =>
-                            GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name),
+                            GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited),
                         INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } t =>
-                            GatherTypeData(t.TypeArguments[1] as INamedTypeSymbol, t.TypeArguments[1].Name),
-                        INamedTypeSymbol t => GatherTypeData(t, t.Name),
+                            GatherTypeData(t.TypeArguments[1] as INamedTypeSymbol, t.TypeArguments[1].Name, visited),
+                        INamedTypeSymbol t => GatherTypeData(t, t.Name, visited),
                         _ => null,
                     }
                 };
