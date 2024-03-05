@@ -4,6 +4,8 @@ namespace FJS.Generator.Model
     {
         public string Name { get; set; }
 
+        public string AttributeName { get; set; }
+
         public bool CanRead { get; set; }
 
         public bool CanWrite { get; set; }

@@ -46,9 +46,16 @@ namespace FJS.Generator
 
             typeData.Members.AddRange(props.Select(p =>
             {
+                var attributeName = p.Name;
+                var attribute = p.GetAttributes().FirstOrDefault(a => a.AttributeClass.Name == "JsonPropertyNameAttribute");
+                if (attribute != null)
+                {
+                    attributeName = attribute.ConstructorArguments[0].Value.ToString();
+                }
                 var member = new MemberData
                 {
                     Name = p.Name,
+                    AttributeName = attributeName,
                     CanRead = !p.IsReadOnly,
                     CanWrite = !p.IsWriteOnly,
                     MemberType =

@@ -107,7 +107,7 @@ namespace FJS.Generator
                             IdentifierName(member.MemberType == MemberTypes.String ? "WriteString" : "WriteNumber")),
                         ArgumentList(SeparatedList(
                             [
-                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name))),
+                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.AttributeName))),
                                         Argument(MemberAccessExpression(SimpleMemberAccessExpression,
                                             IdentifierName("obj"),
                                             IdentifierName(member.Name))),
@@ -124,7 +124,7 @@ namespace FJS.Generator
                             IdentifierName("WritePropertyName")),
                         ArgumentList(SeparatedList(
                             [
-                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.AttributeName)))
                             ])))));
             stmts.Add(
                 ExpressionStatement(
@@ -175,7 +175,7 @@ namespace FJS.Generator
                             IdentifierName("WritePropertyName")),
                         ArgumentList(SeparatedList(
                             [
-                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.AttributeName)))
                             ])))));
             stmts.Add(
                 ExpressionStatement(
@@ -200,7 +200,7 @@ namespace FJS.Generator
                             IdentifierName("WritePropertyName")),
                         ArgumentList(SeparatedList(
                             [
-                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.AttributeName)))
                             ])))));
             stmts.Add(
                 ExpressionStatement(

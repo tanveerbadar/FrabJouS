@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 MemoryStream ms = new();
 Utf8JsonWriter writer = new(ms, new() { Indented = true });
@@ -28,6 +29,7 @@ Console.WriteLine(sr.ReadToEnd());
 
 class TestData
 {
+    [JsonPropertyName("abc")]
     public int Prop1 { get; set; }
     public string? Prop2 { get; set; }
     decimal Prop3 { get; set; }
