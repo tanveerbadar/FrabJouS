@@ -26,7 +26,8 @@ namespace FJS.Generator
                                     Symbol: (INamedTypeSymbol)semanticModel.Compilation.GetSymbolsWithName(enabledType).FirstOrDefault());
                             })
                             .Where(sym => sym.Symbol != null)
-                            .Select(sym => GatherTypeData(sym.Symbol, sym.EnabledType, visited));
+                            .GroupBy(sym => sym.EnabledType)
+                            .Select(g => GatherTypeData(g.First().Symbol, g.First().EnabledType, visited));
 
             var host = new Host
             {
