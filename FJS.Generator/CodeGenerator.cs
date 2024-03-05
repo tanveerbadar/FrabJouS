@@ -98,21 +98,23 @@ namespace FJS.Generator
                 {
                     continue;
                 }
-                if (member.MemberType == MemberTypes.SequentialCollection)
+                switch (member.MemberType)
                 {
-                    WriteArray(stmts, member);
-                }
-                else if (member.MemberType == MemberTypes.ComplexObject)
-                {
-                    WriteSubobject(state, stmts, member);
-                }
-                else if (member.MemberType == MemberTypes.AssociativeCollection)
-                {
-                    WriteDictionary(stmts, member);
-                }
-                else
-                {
-                    WritePrimitive(stmts, member);
+                    case MemberTypes.SequentialCollection:
+                        WriteArray(stmts, member);
+                        break;
+                    case MemberTypes.ComplexObject:
+                        WriteSubobject(state, stmts, member);
+                        break;
+                    case MemberTypes.AssociativeCollection:
+                        WriteDictionary(stmts, member);
+                        break;
+                    case MemberTypes.Nullable:
+                        WriteNullable(stmts, member);
+                        break;
+                    default:
+                        WritePrimitive(stmts, member);
+                        break;
                 }
             }
             stmts.Add(
@@ -140,6 +142,40 @@ namespace FJS.Generator
                                             IdentifierName("obj"),
                                             IdentifierName(member.Name))),
                             ])))));
+        }
+
+        static void WriteNullable(List<StatementSyntax> stmts, MemberData member)
+        {
+            stmts.Add(
+                ExpressionStatement(
+                    InvocationExpression(
+                        MemberAccessExpression(SimpleMemberAccessExpression,
+                            IdentifierName("writer"),
+                            IdentifierName("WritePropertyName")),
+                        ArgumentList(SeparatedList(
+                            [
+                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                            ])))));
+            stmts.Add(
+                IfStatement(
+                    MemberAccessExpression(SimpleMemberAccessExpression,
+                        IdentifierName(member.Name),
+                        IdentifierName("HasValue")),
+                    ExpressionStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("writer"),
+                                IdentifierName("WritePropertyName")),
+                            ArgumentList(SeparatedList(
+                                [
+                                    Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                                ])))),
+                    ElseClause(
+                        ExpressionStatement(
+                            InvocationExpression(
+                                MemberAccessExpression(SimpleMemberAccessExpression,
+                                    IdentifierName("writer"),
+                                    IdentifierName("WriteNull")))))));
         }
 
         static void WriteDictionary(List<StatementSyntax> stmts, MemberData member)
