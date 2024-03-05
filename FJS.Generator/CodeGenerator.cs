@@ -14,9 +14,9 @@ namespace FJS.Generator
         {
             State state = new();
             var surrogateType = ClassDeclaration(host.Name)
-                        .AddModifiers(Token(PartialKeyword))
-                        .AddMembers(AddMethods(host.Types, state))
-                        .AddMembers(AddCatchAllWriteMethod());
+                .AddModifiers(Token(PartialKeyword))
+                .AddMembers(AddMethods(host.Types, state))
+                .AddMembers(AddCatchAllWriteMethod());
 
             var types = state.TypesToGenerate;
 
@@ -30,9 +30,17 @@ namespace FJS.Generator
                 types.Remove(type);
             }
 
+            MemberDeclarationSyntax member = surrogateType;
+
+            if (!string.IsNullOrEmpty(host.Namespace))
+            {
+                member = NamespaceDeclaration(ParseName(host.Namespace))
+                    .AddMembers(surrogateType);
+            }
+
             var code = CompilationUnit()
                 .AddUsings(UsingDirective(ParseName("System.Text.Json")))
-                .AddMembers(surrogateType)
+                .AddMembers(member)
                 .NormalizeWhitespace()
                 .ToFullString();
             return code;
