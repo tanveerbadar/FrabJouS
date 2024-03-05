@@ -15,7 +15,8 @@ namespace FJS.Generator
             State state = new();
             var surrogateType = ClassDeclaration(host.Name)
                         .AddModifiers(Token(PartialKeyword))
-                        .AddMembers(AddMethods(host.Types, state));
+                        .AddMembers(AddMethods(host.Types, state))
+                        .AddMembers(AddCatchAllWriteMethod());
 
             var types = state.TypesToGenerate;
 
@@ -40,6 +41,25 @@ namespace FJS.Generator
         static MethodDeclarationSyntax[] AddMethods(List<TypeData> types, State state) =>
             types.Select(t => GenerateMethodForType(t, state)).ToArray();
 
+        static MethodDeclarationSyntax AddCatchAllWriteMethod()
+            => MethodDeclaration(ParseTypeName("void"), $"Write")
+                                 .AddModifiers(Token(PublicKeyword))
+                                 .AddParameterListParameters(
+                                     [
+                                        Parameter(Identifier("writer")).WithType(ParseTypeName("Utf8JsonWriter")),
+                                        Parameter(Identifier("obj")).WithType(ParseTypeName("object")),
+                                     ]
+                                 )
+                                 .AddBodyStatements(
+                                    ThrowStatement(
+                                        ObjectCreationExpression(
+                                            ParseTypeName("NotImplementedException"),
+                                            ArgumentList(SeparatedList(
+                                                [
+                                                    Argument(LiteralExpression(StringLiteralExpression, Literal("This indicates a bug in generator.")))
+                                                ])),
+                                            null)));
+
         static MethodDeclarationSyntax GenerateMethodForType(TypeData t, State state)
         {
             state.Processed.Add(t.Name);
@@ -47,7 +67,7 @@ namespace FJS.Generator
                                  .AddModifiers(Token(PublicKeyword))
                                  .AddParameterListParameters(
                                      [
-                                         Parameter(Identifier("writer")).WithType(ParseTypeName("Utf8JsonWriter")),
+                                        Parameter(Identifier("writer")).WithType(ParseTypeName("Utf8JsonWriter")),
                                         Parameter(Identifier("obj")).WithType(ParseTypeName(t.Name)),
                                      ]
                                  )
