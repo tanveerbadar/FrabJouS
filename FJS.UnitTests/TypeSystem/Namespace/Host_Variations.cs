@@ -44,7 +44,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
         }
     }
 
-    class TestData
+    public class TestData
     {
         public int Prop1 { get; set; }
     }
