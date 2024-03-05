@@ -6,6 +6,8 @@ namespace FJS.Generator.Model
     {
         public string Name { get; set; }
 
+        public string Namespace { get; set; }
+
         public List<MemberData> Members { get; } = new();
     }
 }

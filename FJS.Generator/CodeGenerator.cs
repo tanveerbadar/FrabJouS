@@ -76,7 +76,7 @@ namespace FJS.Generator
                                  .AddParameterListParameters(
                                      [
                                         Parameter(Identifier("writer")).WithType(ParseTypeName("Utf8JsonWriter")),
-                                        Parameter(Identifier("obj")).WithType(ParseTypeName(t.Name)),
+                                        Parameter(Identifier("obj")).WithType(ParseTypeName(string.Join(".", t.Namespace, t.Name))),
                                      ]
                                  )
                                  .AddBodyStatements(AddStatements(t.Members, state));

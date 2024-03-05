@@ -29,11 +29,10 @@ namespace FJS.Generator
                             .GroupBy(sym => sym.EnabledType)
                             .Select(g => GatherTypeData(g.First().Symbol, g.First().EnabledType, visited));
 
-            var ns = GetNamespace(cls);
             var host = new Host
             {
                 Name = cls.Identifier.Text,
-                Namespace = ns,
+                Namespace = GetNamespace(cls),
             };
             host.Types.AddRange(enabled);
             return host;
@@ -56,13 +55,36 @@ namespace FJS.Generator
             var parent = member.Parent;
             while (parent != null)
             {
-                if (parent is BaseNamespaceDeclarationSyntax ns)
+                if (parent is NamespaceDeclarationSyntax ns)
                 {
                     names.Add(ns.Name.ToString());
+                }
+                if (parent is FileScopedNamespaceDeclarationSyntax fsns)
+                {
+                    names.Add(fsns.Name.ToString());
                 }
                 parent = parent.Parent;
             }
 
+            names.Reverse();
+
+            return string.Join(".", names);
+        }
+
+        static string GetNamespace(INamedTypeSymbol member)
+        {
+            List<string> names = new();
+
+            var parent = member.ContainingNamespace;
+            while (parent != null)
+            {
+                if (!string.IsNullOrEmpty(parent.Name))
+                {
+                    names.Add(parent.Name);
+                }
+                parent = parent.ContainingNamespace;
+            }
+            names.Reverse();
             return string.Join(".", names);
         }
 
@@ -76,6 +98,7 @@ namespace FJS.Generator
             var typeData = new TypeData
             {
                 Name = typeName,
+                Namespace = GetNamespace(sym),
             };
 
             visited[typeName] = typeData;
