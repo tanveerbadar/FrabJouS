@@ -30,7 +30,7 @@ This is a fast serializer for generating Json representation of objects, based o
     - [ ] Object cycles
 - [ ] Object converters
 - [ ] Nullable value types
-- [ ] Collection, sequences, spans, immutable collections
+- [ ] Collection, sequences, spans, immutable collections, frozen collections
     - [ ] Arrays
     - [ ] List<T>
     - [ ] Dictionary<Key, Value>
