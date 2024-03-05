@@ -207,7 +207,7 @@ namespace FJS.Generator
                             ])))));
             stmts.Add(
                 ExpressionStatement(
-                    InvocationExpression(IdentifierName($"Write{member.CollectionElementType.Name}"),
+                    InvocationExpression(IdentifierName($"Write"),
                         ArgumentList(SeparatedList(
                             [
                                 Argument(IdentifierName("writer")),
