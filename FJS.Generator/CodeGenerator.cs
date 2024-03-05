@@ -43,7 +43,7 @@ namespace FJS.Generator
         static MethodDeclarationSyntax GenerateMethodForType(TypeData t, State state)
         {
             state.Processed.Add(t.Name);
-            return MethodDeclaration(ParseTypeName("void"), $"Write{t.Name}")
+            return MethodDeclaration(ParseTypeName("void"), $"Write")
                                  .AddModifiers(Token(PublicKeyword))
                                  .AddParameterListParameters(
                                      [

@@ -12,7 +12,7 @@ public class NullableFieldsTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             NullableFieldsHost host = new();
-            host.WriteNullableFields(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);

@@ -12,7 +12,7 @@ public class ScalarFieldsTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             ScalarFieldsHost host = new();
-            host.WriteTestDataWithFields(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
