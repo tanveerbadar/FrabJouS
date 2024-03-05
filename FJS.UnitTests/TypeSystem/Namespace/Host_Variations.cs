@@ -9,7 +9,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
             var output1 = SerializerHelper.SerializeType(writer =>
             {
                 GlobalHost1 host = new();
-                host.WriteTestData(writer, data);
+                host.Write(writer, data);
             });
             var output2 = SerializerHelper.SerializeUsingSTJ(data);
             Assert.Equal(output1, output2);
@@ -21,8 +21,8 @@ namespace FJS.UnitTests.TypeSystem.Namespace
             TestData data = new();
             var output1 = SerializerHelper.SerializeType(writer =>
             {
-                NestedHost1 host = new();
-                host.WriteTestData(writer, data);
+                Nested.NestedHost1 host = new();
+                host.Write(writer, data);
             });
             var output2 = SerializerHelper.SerializeUsingSTJ(data);
             Assert.Equal(output1, output2);
@@ -39,7 +39,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
     {
         [GeneratedSerialier]
         [RootType(typeof(TestData))]
-        partial class NestedHost1
+        public partial class NestedHost1
         {
         }
     }

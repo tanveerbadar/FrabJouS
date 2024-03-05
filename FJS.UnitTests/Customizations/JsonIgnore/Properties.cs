@@ -12,7 +12,7 @@ public class IgnoredPropertiesTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost3 host = new();
-            host.WriteTestData6(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);

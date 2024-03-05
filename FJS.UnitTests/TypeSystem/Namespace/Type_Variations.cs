@@ -9,7 +9,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
             var output1 = SerializerHelper.SerializeType(writer =>
             {
                 GlobalHost2 host = new();
-                host.WriteTestData1(writer, data);
+                host.Write(writer, data);
             });
             var output2 = SerializerHelper.SerializeUsingSTJ(data);
             Assert.Equal(output1, output2);
@@ -22,7 +22,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
             var output1 = SerializerHelper.SerializeType(writer =>
             {
                 GlobalHost2 host = new();
-                host.WriteTestData2(writer, data);
+                host.Write(writer, data);
             });
             var output2 = SerializerHelper.SerializeUsingSTJ(data);
             Assert.Equal(output1, output2);

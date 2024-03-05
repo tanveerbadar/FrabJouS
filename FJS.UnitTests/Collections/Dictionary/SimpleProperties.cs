@@ -12,7 +12,7 @@ public class SimplePropertiesTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost9 host = new();
-            host.WriteTestData2WithStringKeys(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -25,7 +25,7 @@ public class SimplePropertiesTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost9 host = new();
-            host.WriteTestData2WithIntegralKeys(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);

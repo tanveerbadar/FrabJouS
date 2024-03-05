@@ -9,7 +9,7 @@ public class ObjectGraphTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost1 host = new();
-            host.WriteSelfReference(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -22,7 +22,7 @@ public class ObjectGraphTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost1 host = new();
-            host.WriteCycle1(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -34,8 +34,8 @@ public class ObjectGraphTests
         Cycle2 data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost2 host = new();
-            host.WriteCycle2(writer, data);
+            SerializerHost10 host = new();
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -48,7 +48,7 @@ public class ObjectGraphTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost1 host = new();
-            host.WriteCycle2(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -80,7 +80,7 @@ partial class SerializerHost1
 
 [GeneratedSerialier]
 [RootType(typeof(Cycle2))]
-partial class SerializerHost2
+partial class SerializerHost10
 {
 }
 

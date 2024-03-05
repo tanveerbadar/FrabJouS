@@ -12,7 +12,7 @@ public class ComplexPropertiesTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost5 host = new();
-            host.WriteTestData(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -25,7 +25,7 @@ public class ComplexPropertiesTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost5 host = new();
-            host.WriteTestData3WithDictionaryValues(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);

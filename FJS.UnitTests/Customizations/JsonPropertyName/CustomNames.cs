@@ -13,7 +13,7 @@ public class CustomNameTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost4 host = new();
-            host.WriteNoCollision(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -26,7 +26,7 @@ public class CustomNameTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost4 host = new();
-            host.WriteCollisionWithDefaultName(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
@@ -39,7 +39,7 @@ public class CustomNameTests
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             SerializerHost4 host = new();
-            host.WriteCollisionThroughAttribute(writer, data);
+            host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
         Assert.Equal(output1, output2);
