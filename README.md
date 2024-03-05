@@ -23,7 +23,7 @@ This is a fast serializer for generating Json representation of objects, based o
     - [ ] camel case
     - [ ] pascal case
 - [ ] Polymorphic serialization
-- [ ] Ignore property or type
+- [ ] Ignored properties
 - [ ] Field serialization
 - [ ] Cyclic references
     - [ ] Type cycles
@@ -37,6 +37,8 @@ This is a fast serializer for generating Json representation of objects, based o
     - [ ] Primitive objects as element
     - [ ] Complex objects as element
     - [ ] Complex objects as value
+    - [ ] Arrays as value
+    - [ ] Dictionaries as value
     - [ ] [Readonly]Span<T>
 - [ ] Complex properties
 - [ ] Primitive types
