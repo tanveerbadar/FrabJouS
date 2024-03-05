@@ -13,10 +13,12 @@ namespace FJS.Generator
         public static string GetGeneratedSource(Host host)
         {
             State state = new();
-            var surrogateType = ClassDeclaration(host.Name)
+            var surrogateType = NamespaceDeclaration(ParseName(host.Namespace))
+                .AddMembers(
+                    ClassDeclaration(host.Name)
                         .AddModifiers(Token(PartialKeyword))
                         .AddMembers(AddMethods(host.Types, state))
-                        .AddMembers(AddCatchAllWriteMethod());
+                        .AddMembers(AddCatchAllWriteMethod()));
 
             var types = state.TypesToGenerate;
 

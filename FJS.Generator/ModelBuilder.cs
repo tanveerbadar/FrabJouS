@@ -28,9 +28,11 @@ namespace FJS.Generator
                             .Where(sym => sym.Symbol != null)
                             .Select(sym => GatherTypeData(sym.Symbol, sym.EnabledType, visited));
 
+            var ns = GetNamespace(cls);
             var host = new Host
             {
                 Name = cls.Identifier.Text,
+                Namespace = ns,
             };
             host.Types.AddRange(enabled);
             return host;
@@ -42,9 +44,25 @@ namespace FJS.Generator
             {
                 SimpleNameSyntax sn => sn.Identifier.Text,
                 QualifiedNameSyntax qn => string.Join(".", GetFQName(qn.Left), GetFQName(qn.Right)),
-                null => null,
                 _ => string.Empty,
             };
+        }
+
+        static string GetNamespace(ClassDeclarationSyntax member)
+        {
+            List<string> names = new();
+
+            var parent = member.Parent;
+            while (parent != null)
+            {
+                if (parent is BaseNamespaceDeclarationSyntax ns)
+                {
+                    names.Add(ns.Name.ToString());
+                }
+                parent = parent.Parent;
+            }
+
+            return string.Join(".", names);
         }
 
         static TypeData GatherTypeData(INamedTypeSymbol sym, string typeName, Dictionary<string, TypeData> visited)
