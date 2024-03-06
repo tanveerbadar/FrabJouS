@@ -29,7 +29,7 @@ public class ComplexPropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestData3))]
 [RootType(typeof(TestData3WithDictionaryValues))]
 partial class ComplexArrayPropertiesHost

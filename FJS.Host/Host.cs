@@ -1,6 +1,6 @@
 using FJS.Common.Metadata;
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestData))]
 partial class SerializerHost
 {

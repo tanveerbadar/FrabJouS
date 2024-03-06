@@ -11,7 +11,7 @@ public class JsonCodeGenerator : IIncrementalGenerator
     {
         var hosts = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                "FJS.Common.Metadata.GeneratedSerialierAttribute",
+                "FJS.Common.Metadata.GeneratedSerializerAttribute",
                 static (node, token) => node is ClassDeclarationSyntax,
                 static (ctx, ct) => ModelBuilder.GatherSerializableTypes(ctx.TargetNode, ctx.SemanticModel));
 

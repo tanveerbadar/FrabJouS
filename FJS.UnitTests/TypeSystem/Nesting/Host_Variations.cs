@@ -18,7 +18,7 @@ public class HostVariationTests
 
 public partial class HostParent
 {
-    [GeneratedSerialier]
+    [GeneratedSerializer]
     [RootType(typeof(TestData))]
     public partial class NestedHost2
     {

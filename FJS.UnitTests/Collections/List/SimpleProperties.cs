@@ -18,7 +18,7 @@ public class SimplePropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestData2))]
 partial class ListWithSimpleValuesHost
 {

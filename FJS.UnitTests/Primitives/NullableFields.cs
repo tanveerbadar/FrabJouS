@@ -18,7 +18,7 @@ public class NullableFieldsTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(NullableFields))]
 partial class NullableFieldsHost
 {
@@ -26,33 +26,33 @@ partial class NullableFieldsHost
 
 class NullableFields
 {
-    public byte? ByteProp;
+    public byte? ByteProp = default;
 
-    public sbyte? SByteProp;
+    public sbyte? SByteProp = default;
 
-    public short? ShortProp;
+    public short? ShortProp = default;
 
-    public ushort? UShortProp;
+    public ushort? UShortProp = default;
 
-    public int? IntProp;
+    public int? IntProp = default;
 
-    public uint? UIntProp;
+    public uint? UIntProp = default;
 
-    public long? LongProp;
+    public long? LongProp = default;
 
-    public ulong? ULongProp;
+    public ulong? ULongProp = default;
 
-    public float? FloatProp;
+    public float? FloatProp = default;
 
-    public double? DoubleProp;
+    public double? DoubleProp = default;
 
-    public Guid? GuidProp;
+    public Guid? GuidProp = default;
 
-    public TimeSpan? TimeSpanProp;
+    public TimeSpan? TimeSpanProp = default;
 
-    public DateTime? DateTimeProp;
+    public DateTime? DateTimeProp = default;
 
-    public char? CharProp;
+    public char? CharProp = default;
 
-    public Rune? RuneProp;
+    public Rune? RuneProp = default;
 }

@@ -71,20 +71,20 @@ class Cycle2
     public Cycle1? Other { get; set; }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(SelfReference))]
 [RootType(typeof(Cycle1))]
 partial class SelfReferenceAndCycleHost
 {
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(Cycle2))]
 partial class TransitiveClosureHost
 {
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(Cycle2))]
 [RootType(typeof(Cycle2))]
 partial class SameRootMultipleTimesHost
