@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 
-namespace FJS.Generator.Model
+namespace FJS.Generator.Model;
+
+class TypeData
 {
-    class TypeData
-    {
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public string Namespace { get; set; }
+    public string Namespace { get; set; }
 
-        public List<MemberData> Members { get; } = new();
-    }
+    public List<MemberData> Members { get; } = new();
 }

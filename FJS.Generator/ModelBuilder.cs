@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using FJS.Generator.Model;
 using Microsoft.CodeAnalysis;
@@ -110,35 +111,58 @@ namespace FJS.Generator
 
             typeData.Members.AddRange(props.Select(p =>
             {
+                MemberType memberType = default, collectionElementWritingMethod = default;
+                TypeData collectionElementType = default;
+                CollectionType collectionType = default;
+                switch (p.Type)
+                {
+                    case INamedTypeSymbol { SpecialType: SpecialType.System_String } str:
+                        memberType = MemberType.String;
+                        break;
+                    case INamedTypeSymbol { SpecialType: SpecialType.System_Int32 } i:
+                        memberType = MemberType.Number;
+                        break;
+                    case IArrayTypeSymbol array:
+                        memberType = MemberType.Collection;
+                        collectionElementType = GatherTypeData(array.ElementType as INamedTypeSymbol, array.ElementType.Name, visited);
+                        collectionElementWritingMethod = GetCollectionElementWritingMethod(array.ElementType);
+                        collectionType = CollectionType.Sequential;
+                        break;
+                    case INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } dict:
+                        memberType = MemberType.Collection;
+                        collectionElementType = GatherTypeData(dict.TypeArguments[1] as INamedTypeSymbol, dict.TypeArguments[1].Name, visited);
+                        collectionElementWritingMethod = GetCollectionElementWritingMethod(dict.TypeArguments[1]);
+                        collectionType = CollectionType.Associative;
+                        break;
+                    case INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } list:
+                        memberType = MemberType.Collection;
+                        collectionElementType = GatherTypeData(list.TypeArguments[0] as INamedTypeSymbol, list.TypeArguments[0].Name, visited);
+                        collectionElementWritingMethod = GetCollectionElementWritingMethod(list.TypeArguments[0]);
+                        collectionType = CollectionType.Sequential;
+                        break;
+                    case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } nullable:
+                        memberType = MemberType.Nullable;
+                        collectionElementType = GatherTypeData(nullable.TypeArguments[0] as INamedTypeSymbol, nullable.TypeArguments[0].Name, visited);
+                        collectionElementWritingMethod = GetCollectionElementWritingMethod(nullable.TypeArguments[0]);
+                        break;
+                    case INamedTypeSymbol t:
+                        memberType = MemberType.ComplexObject;
+                        collectionElementType = GatherTypeData(t, t.Name, visited);
+                        break;
+                    default:
+                        Debug.Fail($"Unhandled type in model builder: {p.Type.Name}.");
+                        break;
+                }
+
                 var member = new MemberData
                 {
                     Name = p.Name,
                     CanRead = !p.IsReadOnly,
                     CanWrite = !p.IsWriteOnly,
-                    MemberType =
-                        p.Type switch
-                        {
-                            IArrayTypeSymbol => MemberTypes.SequentialCollection,
-                            INamedTypeSymbol { SpecialType: SpecialType.System_String } t => MemberTypes.String,
-                            INamedTypeSymbol { SpecialType: SpecialType.System_Int32 } t => MemberTypes.Number,
-                            INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } t => MemberTypes.AssociativeCollection,
-                            INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } t => MemberTypes.SequentialCollection,
-                            INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } t => MemberTypes.Nullable,
-                            _ => MemberTypes.ComplexObject,
-                        },
-                    CollectionElementType = p.Type switch
-                    {
-                        IArrayTypeSymbol at =>
-                            GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited),
-                        INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } t =>
-                            GatherTypeData(t.TypeArguments[1] as INamedTypeSymbol, t.TypeArguments[1].Name, visited),
-                        INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } t =>
-                            GatherTypeData(t.TypeArguments[0] as INamedTypeSymbol, t.TypeArguments[0].Name, visited),
-                        INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } t =>
-                            GatherTypeData(t.TypeArguments[0] as INamedTypeSymbol, t.TypeArguments[0].Name, visited),
-                        INamedTypeSymbol t => GatherTypeData(t, t.Name, visited),
-                        _ => null,
-                    }
+                    MemberType = memberType,
+                    CollectionElementType = collectionElementType,
+                    CollectionElementWritingMethod = collectionElementWritingMethod,
+                    CollectionType = collectionType,
                 };
 
                 return member;
@@ -147,5 +171,24 @@ namespace FJS.Generator
             return typeData;
         }
 
+        static MemberType GetCollectionElementWritingMethod(ITypeSymbol type)
+        {
+            switch (type)
+            {
+                case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
+                    return MemberType.String;
+                case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 }:
+                case INamedTypeSymbol { SpecialType: SpecialType.System_Int32 }:
+                    return MemberType.Number;
+                case IArrayTypeSymbol:
+                case INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 }:
+                case INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 }:
+                    return MemberType.Collection;
+                case INamedTypeSymbol:
+                    return MemberType.ComplexObject;
+                default:
+                    return MemberType.Unspecified;
+            }
+        }
     }
 }
