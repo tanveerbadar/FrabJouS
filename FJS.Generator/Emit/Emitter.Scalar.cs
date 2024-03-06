@@ -9,7 +9,7 @@ namespace FJS.Generator.Emit;
 
 static partial class Emitter
 {
-    static void WritePrimitiveValue(List<StatementSyntax> stmts, string name, PrimitiveType primitiveType)
+    static void WritePrimitiveValue(List<StatementSyntax> stmts, string name, PrimitiveType primitiveType, ExpressionSyntax nameExpression)
     {
         string methodName = null;
         switch (primitiveType)
@@ -36,10 +36,35 @@ static partial class Emitter
                     ArgumentList(SeparatedList(
                         [
                             Argument(LiteralExpression(StringLiteralExpression, Literal(name))),
-                            Argument(MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("obj"),
-                                IdentifierName(name))),
+                            Argument(nameExpression),
                         ])))));
+    }
+
+    static StatementSyntax WriteNullableValue(MemberData member)
+    {
+        if (member.PrimitiveType == PrimitiveType.Unspecified)
+        {
+            return WriteValue(
+                        member.Name,
+                        member.MemberType,
+                        MemberAccessExpression(SimpleMemberAccessExpression,
+                            IdentifierName("obj"),
+                            IdentifierName(member.Name)));
+        }
+        else
+        {
+            List<StatementSyntax> stmts = new();
+            WritePrimitiveValue(
+                stmts,
+                member.Name,
+                member.PrimitiveType,
+                MemberAccessExpression(SimpleMemberAccessExpression,
+                    MemberAccessExpression(SimpleMemberAccessExpression,
+                        IdentifierName("obj"),
+                        IdentifierName(member.Name)),
+                    IdentifierName("Value")));
+            return stmts[0];
+        }
     }
 
     static StatementSyntax WriteValue(string name, MemberType memberType, ExpressionSyntax nameExpression)
@@ -85,21 +110,7 @@ static partial class Emitter
                     IdentifierName("HasValue")),
                 Block(new StatementSyntax[]
                     {
-                        ExpressionStatement(
-                            InvocationExpression(
-                                MemberAccessExpression(SimpleMemberAccessExpression,
-                                    IdentifierName("writer"),
-                                    IdentifierName("WritePropertyName")),
-                                ArgumentList(SeparatedList(
-                                    [
-                                        Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
-                                    ])))),
-                        WriteValue(
-                            member.Name,
-                            member.MemberType,
-                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("obj"),
-                                IdentifierName(member.Name))),
+                        WriteNullableValue(member),
                     }),
                 ElseClause(
                     Block(new StatementSyntax[]

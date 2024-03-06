@@ -106,11 +106,17 @@ static partial class Emitter
                 // case MemberType.ComplexObject:
                 //     WriteSubobject(state, stmts, member);
                 //     break;
-                // case MemberType.Nullable:
-                //     WriteNullable(stmts, member);
-                //     break;
+                case MemberType.Nullable:
+                    WriteNullable(stmts, member);
+                    break;
                 case MemberType.Primitive:
-                    WritePrimitiveValue(stmts, member.Name, member.PrimitiveType);
+                    WritePrimitiveValue(
+                        stmts,
+                        member.Name,
+                        member.PrimitiveType,
+                        MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("obj"),
+                                IdentifierName(member.Name)));
                     break;
             }
         }

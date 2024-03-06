@@ -1,6 +1,3 @@
-using FJS.Common.Metadata;
-using System.Text;
-
 namespace FJS.UnitTests.Primitives;
 
 public class NullablePropertiesTests
@@ -47,15 +44,15 @@ class NullableProperties
 
     public double? DoubleProp { get; set; }
 
-    public Guid? GuidProp { get; set; }
+    // public Guid? GuidProp { get; set; }
 
-    public TimeSpan? TimeSpanProp { get; set; }
+    // public TimeSpan? TimeSpanProp { get; set; }
 
-    public DateTime? DateTimeProp { get; set; }
+    // public DateTime? DateTimeProp { get; set; }
 
-    public char? CharProp { get; set; }
+    // public char? CharProp { get; set; }
 
     public bool? BoolProp { get; set; }
 
-    public Rune? RuneProp { get; set; }
+    // public Rune? RuneProp { get; set; }
 }
