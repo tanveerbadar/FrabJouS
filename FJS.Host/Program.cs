@@ -19,7 +19,7 @@ TestData data = new()
 };
 
 SerializerHost host = new();
-host.WriteTestData(writer, data);
+host.Write(writer, data);
 writer.Flush();
 ms.Position = 0;
 

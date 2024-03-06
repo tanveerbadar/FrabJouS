@@ -122,6 +122,8 @@ namespace FJS.Generator
                             INamedTypeSymbol { SpecialType: SpecialType.System_String } t => MemberTypes.String,
                             INamedTypeSymbol { SpecialType: SpecialType.System_Int32 } t => MemberTypes.Number,
                             INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } t => MemberTypes.AssociativeCollection,
+                            INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } t => MemberTypes.SequentialCollection,
+                            INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } t => MemberTypes.Nullable,
                             _ => MemberTypes.ComplexObject,
                         },
                     CollectionElementType = p.Type switch
@@ -130,6 +132,10 @@ namespace FJS.Generator
                             GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited),
                         INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } t =>
                             GatherTypeData(t.TypeArguments[1] as INamedTypeSymbol, t.TypeArguments[1].Name, visited),
+                        INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } t =>
+                            GatherTypeData(t.TypeArguments[0] as INamedTypeSymbol, t.TypeArguments[0].Name, visited),
+                        INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } t =>
+                            GatherTypeData(t.TypeArguments[0] as INamedTypeSymbol, t.TypeArguments[0].Name, visited),
                         INamedTypeSymbol t => GatherTypeData(t, t.Name, visited),
                         _ => null,
                     }

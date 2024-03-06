@@ -8,5 +8,6 @@ namespace FJS.Generator.Model
         ComplexObject,
         SequentialCollection,
         AssociativeCollection,
+        Nullable,
     }
 }
