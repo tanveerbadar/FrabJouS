@@ -149,7 +149,9 @@ namespace FJS.Generator
             stmts.Add(
                 IfStatement(
                     MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName(member.Name),
+                        MemberAccessExpression(SimpleMemberAccessExpression,
+                            IdentifierName("obj"),
+                            IdentifierName(member.Name)),
                         IdentifierName("HasValue")),
                     Block(new StatementSyntax[]
                         {
