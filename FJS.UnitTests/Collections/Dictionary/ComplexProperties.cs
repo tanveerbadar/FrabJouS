@@ -1,6 +1,3 @@
-using FJS.Common.Metadata;
-using System.Text;
-
 namespace FJS.UnitTests.Collections.Dictionary;
 
 public class ComplexPropertiesTests
@@ -11,7 +8,7 @@ public class ComplexPropertiesTests
         TestData3WithStringKeys data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost8 host = new();
+            DictionaryWithComplexValuesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -24,7 +21,7 @@ public class ComplexPropertiesTests
         TestData3WithIntegralKeys data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost8 host = new();
+            DictionaryWithComplexValuesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -37,7 +34,7 @@ public class ComplexPropertiesTests
         TestData3WithArrayValues data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost8 host = new();
+            DictionaryWithComplexValuesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -50,7 +47,7 @@ public class ComplexPropertiesTests
         TestData3WithDictionaryValues data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost8 host = new();
+            DictionaryWithComplexValuesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -63,7 +60,7 @@ public class ComplexPropertiesTests
 [RootType(typeof(TestData3WithIntegralKeys))]
 [RootType(typeof(TestData3WithArrayValues))]
 [RootType(typeof(TestData3WithDictionaryValues))]
-partial class SerializerHost8
+partial class DictionaryWithComplexValuesHost
 {
 }
 

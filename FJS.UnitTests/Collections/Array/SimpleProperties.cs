@@ -1,4 +1,3 @@
-using FJS.Common.Metadata;
 using System.Text;
 
 namespace FJS.UnitTests.Collections.Array;
@@ -11,7 +10,7 @@ public class SimplePropertiesTests
         TestData2 data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost2 host = new();
+            SimpleArrayPropertiesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -21,7 +20,7 @@ public class SimplePropertiesTests
 
 [GeneratedSerialier]
 [RootType(typeof(TestData2))]
-partial class SerializerHost2
+partial class SimpleArrayPropertiesHost
 {
 }
 
