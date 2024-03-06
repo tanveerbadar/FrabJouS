@@ -25,6 +25,7 @@ This is a fast serializer for generating Json representation of objects, based o
 - [ ] Polymorphic serialization
 - [ ] Ignored properties
 - [ ] Field serialization
+- [ ] Custom member ordering
 - [ ] Cyclic references
     - [ ] Type cycles
     - [ ] Object cycles
@@ -40,6 +41,11 @@ This is a fast serializer for generating Json representation of objects, based o
     - [ ] Arrays as value
     - [ ] Dictionaries as value
     - [ ] [Readonly]Span<T>
+- [ ] Support for serialization callbacks
+    - [ ] IJsonSerializing
+    - [ ] IJsonSerialized
+    - [ ] IJsonDeserializing
+    - [ ] IJsonDeserialized
 - [ ] Complex properties
 - [ ] Primitive types
     - [ ] byte
