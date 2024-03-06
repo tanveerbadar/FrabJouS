@@ -112,8 +112,13 @@ static partial class Emitter
                 case MemberType.Nullable:
                     WriteNullable(stmts, member);
                     break;
-                default:
-                    WritePrimitive(stmts, member);
+                case MemberType.String:
+                case MemberType.Number:
+                    stmts.Add(
+                        WriteValue(
+                            member.Name,
+                            member.MemberType,
+                            IdentifierName("obj")));
                     break;
             }
         }
@@ -125,39 +130,5 @@ static partial class Emitter
                             IdentifierName("WriteEndObject")))));
 
         return stmts.ToArray();
-    }
-
-    static void WriteSubobject(CodeGeneratorState state, List<StatementSyntax> stmts, MemberData member)
-    {
-        stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("writer"),
-                        IdentifierName("WritePropertyName")),
-                    ArgumentList(SeparatedList(
-                        [
-                            Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
-                        ])))));
-        stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(IdentifierName($"Write"),
-                    ArgumentList(SeparatedList(
-                        [
-                            Argument(IdentifierName("writer")),
-                                    Argument(MemberAccessExpression(SimpleMemberAccessExpression,
-                                                IdentifierName("obj"),
-                                                IdentifierName(member.Name)))
-                        ])))));
-        state.TypesToGenerate.Add(member.CollectionElementType);
-    }
-
-    static string GetMethodToCall(MemberData member)
-    {
-        if (member is { MemberType: MemberType.SequentialCollection, CollectionElementType.Name: "String" }
-            || member.MemberType == MemberType.String)
-            return "WriteStringValue";
-        else
-            return "WriteNumberValue";
     }
 }
