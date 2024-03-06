@@ -8,35 +8,6 @@ namespace FJS.Generator.Emit;
 
 static partial class Emitter
 {
-    static StatementSyntax WriteCollection(MemberData member)
-    {
-        return IfStatement(
-                BinaryExpression(NotEqualsExpression,
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("obj"),
-                        IdentifierName(member.Name)),
-                    LiteralExpression(NullLiteralExpression)),
-                ForEachStatement(
-                    ParseTypeName("var"),
-                    "iter",
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("obj"),
-                        IdentifierName(member.Name)),
-                        Block(
-                            new StatementSyntax[]
-                            {
-                                    ExpressionStatement(
-                                        InvocationExpression(
-                                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                                IdentifierName("writer"),
-                                                IdentifierName(GetMethodToCall(member))),
-                                            ArgumentList(SeparatedList(
-                                                [
-                                                    Argument(IdentifierName("iter")),
-                                                ]))))
-                            })));
-    }
-
     static void WriteArray(List<StatementSyntax> stmts, MemberData member)
     {
         stmts.Add(
@@ -55,7 +26,24 @@ static partial class Emitter
                     MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("writer"),
                         IdentifierName("WriteStartArray")))));
-        stmts.Add(WriteCollection(member));
+        stmts.Add(
+            IfStatement(
+                BinaryExpression(NotEqualsExpression,
+                    MemberAccessExpression(SimpleMemberAccessExpression,
+                        IdentifierName("obj"),
+                        IdentifierName(member.Name)),
+                    LiteralExpression(NullLiteralExpression)),
+                ForEachStatement(
+                    ParseTypeName("var"),
+                    "iter",
+                    MemberAccessExpression(SimpleMemberAccessExpression,
+                        IdentifierName("obj"),
+                        IdentifierName(member.Name)),
+                        Block(
+                            new StatementSyntax[]
+                            {
+                                WriteValue("iter", MemberType.ComplexObject, IdentifierName("iter"))
+                            }))));
         stmts.Add(
             ExpressionStatement(
                 InvocationExpression(
