@@ -147,35 +147,44 @@ namespace FJS.Generator
         static void WriteNullable(List<StatementSyntax> stmts, MemberData member)
         {
             stmts.Add(
-                ExpressionStatement(
-                    InvocationExpression(
-                        MemberAccessExpression(SimpleMemberAccessExpression,
-                            IdentifierName("writer"),
-                            IdentifierName("WritePropertyName")),
-                        ArgumentList(SeparatedList(
-                            [
-                                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
-                            ])))));
-            stmts.Add(
                 IfStatement(
                     MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName(member.Name),
                         IdentifierName("HasValue")),
-                    ExpressionStatement(
-                        InvocationExpression(
-                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("writer"),
-                                IdentifierName("WritePropertyName")),
-                            ArgumentList(SeparatedList(
-                                [
-                                    Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
-                                ])))),
+                    Block(new StatementSyntax[]
+                        {
+                            ExpressionStatement(
+                                InvocationExpression(
+                                    MemberAccessExpression(SimpleMemberAccessExpression,
+                                        IdentifierName("writer"),
+                                        IdentifierName("WritePropertyName")),
+                                    ArgumentList(SeparatedList(
+                                        [
+                                            Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                                        ])))),
+                            ExpressionStatement(
+                                InvocationExpression(
+                                    MemberAccessExpression(SimpleMemberAccessExpression,
+                                        IdentifierName("writer"),
+                                        IdentifierName("WritePropertyName")),
+                                    ArgumentList(SeparatedList(
+                                        [
+                                            Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                                        ]))))
+                        }),
                     ElseClause(
-                        ExpressionStatement(
-                            InvocationExpression(
-                                MemberAccessExpression(SimpleMemberAccessExpression,
-                                    IdentifierName("writer"),
-                                    IdentifierName("WriteNull")))))));
+                        Block(new StatementSyntax[]
+                        {
+                            ExpressionStatement(
+                                InvocationExpression(
+                                    MemberAccessExpression(SimpleMemberAccessExpression,
+                                        IdentifierName("writer"),
+                                        IdentifierName("WriteNull")),
+                                    ArgumentList(SeparatedList(
+                                        [
+                                            Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                                        ]))))
+                        }))));
         }
 
         static void WriteDictionary(List<StatementSyntax> stmts, MemberData member)
