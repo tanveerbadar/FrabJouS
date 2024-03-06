@@ -1,4 +1,3 @@
-using FJS.Common.Metadata;
 using System.Text;
 
 namespace FJS.UnitTests.Collections.Dictionary;
@@ -11,7 +10,7 @@ public class SimplePropertiesTests
         TestData2WithStringKeys data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost9 host = new();
+            DictionaryWithSimpleValuesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -24,7 +23,7 @@ public class SimplePropertiesTests
         TestData2WithIntegralKeys data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost9 host = new();
+            DictionaryWithSimpleValuesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -35,7 +34,7 @@ public class SimplePropertiesTests
 [GeneratedSerialier]
 [RootType(typeof(TestData2WithStringKeys))]
 [RootType(typeof(TestData2WithIntegralKeys))]
-partial class SerializerHost9
+partial class DictionaryWithSimpleValuesHost
 {
 }
 

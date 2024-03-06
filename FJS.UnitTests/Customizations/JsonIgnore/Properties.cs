@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using FJS.Common.Metadata;
 
 namespace FJS.UnitTests.Customizations.JsonIgnore;
 
@@ -11,7 +10,7 @@ public class IgnoredPropertiesTests
         TestData6 data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost3 host = new();
+            IgnoredPropertiesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -21,7 +20,7 @@ public class IgnoredPropertiesTests
 
 [GeneratedSerialier]
 [RootType(typeof(TestData6))]
-partial class SerializerHost3
+partial class IgnoredPropertiesHost
 {
 }
 
