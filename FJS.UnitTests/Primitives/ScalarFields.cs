@@ -59,5 +59,7 @@ class TestDataWithFields
 
     public char CharProp = default;
 
+    public bool BoolProp = default;
+    
     public Rune RuneProp = default;
 }

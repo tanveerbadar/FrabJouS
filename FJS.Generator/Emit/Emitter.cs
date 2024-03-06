@@ -100,25 +100,17 @@ static partial class Emitter
             }
             switch (member.MemberType)
             {
-                case MemberType.SequentialCollection:
-                    WriteArray(stmts, member);
-                    break;
-                case MemberType.ComplexObject:
-                    WriteSubobject(state, stmts, member);
-                    break;
-                case MemberType.AssociativeCollection:
-                    WriteDictionary(stmts, member);
-                    break;
-                case MemberType.Nullable:
-                    WriteNullable(stmts, member);
-                    break;
-                case MemberType.String:
-                case MemberType.Number:
-                    stmts.Add(
-                        WriteValue(
-                            member.Name,
-                            member.MemberType,
-                            IdentifierName("obj")));
+                // case MemberType.Collection:
+                //     WriteArray(stmts, member);
+                //     break;
+                // case MemberType.ComplexObject:
+                //     WriteSubobject(state, stmts, member);
+                //     break;
+                // case MemberType.Nullable:
+                //     WriteNullable(stmts, member);
+                //     break;
+                case MemberType.Primitive:
+                    WritePrimitiveValue(stmts, member.Name, member.PrimitiveType);
                     break;
             }
         }

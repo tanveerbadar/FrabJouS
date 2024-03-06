@@ -110,35 +110,66 @@ static class ModelBuilder
 
         typeData.Members.AddRange(props.Select(p =>
         {
+            MemberType memberType = default;
+            TypeData elementType = default;
+            PrimitiveType primitiveType = default;
+            switch (p.Type)
+            {
+                case IArrayTypeSymbol at:
+                    memberType = MemberType.Collection;
+                    elementType = GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited);
+                    break;
+                case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
+                    memberType = MemberType.Primitive;
+                    primitiveType = PrimitiveType.String;
+                    break;
+                case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
+                    memberType = MemberType.Primitive;
+                    primitiveType = PrimitiveType.Boolean;
+                    break;
+                case INamedTypeSymbol
+                {
+                    SpecialType:
+                        SpecialType.System_Byte or
+                        SpecialType.System_SByte or
+                        SpecialType.System_Int16 or
+                        SpecialType.System_UInt16 or
+                        SpecialType.System_Int32 or
+                        SpecialType.System_UInt32 or
+                        SpecialType.System_UInt64 or
+                        SpecialType.System_Int64 or
+                        SpecialType.System_Single or
+                        SpecialType.System_Double or
+                        SpecialType.System_Decimal
+                }:
+                    memberType = MemberType.Primitive;
+                    primitiveType = PrimitiveType.Number;
+                    break;
+                case INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } dict:
+                    memberType = MemberType.Collection;
+                    elementType = GatherTypeData(dict.TypeArguments[1] as INamedTypeSymbol, dict.TypeArguments[1].Name, visited);
+                    break;
+                case INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } list:
+                    memberType = MemberType.Collection;
+                    elementType = GatherTypeData(list.TypeArguments[0] as INamedTypeSymbol, list.TypeArguments[0].Name, visited);
+                    break;
+                case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } nullable:
+                    memberType = MemberType.Nullable;
+                    elementType = GatherTypeData(nullable.TypeArguments[0] as INamedTypeSymbol, nullable.TypeArguments[0].Name, visited);
+                    break;
+                default:
+                    memberType = MemberType.ComplexObject;
+                    break;
+            }
+
             var member = new MemberData
             {
                 Name = p.Name,
                 CanRead = !p.IsReadOnly,
                 CanWrite = !p.IsWriteOnly,
-                MemberType =
-                    p.Type switch
-                    {
-                        IArrayTypeSymbol => MemberType.SequentialCollection,
-                        INamedTypeSymbol { SpecialType: SpecialType.System_String } t => MemberType.String,
-                        INamedTypeSymbol { SpecialType: SpecialType.System_Int32 } t => MemberType.Number,
-                        INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } t => MemberType.AssociativeCollection,
-                        INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } t => MemberType.SequentialCollection,
-                        INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } t => MemberType.Nullable,
-                        _ => MemberType.ComplexObject,
-                    },
-                CollectionElementType = p.Type switch
-                {
-                    IArrayTypeSymbol at =>
-                        GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited),
-                    INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } t =>
-                        GatherTypeData(t.TypeArguments[1] as INamedTypeSymbol, t.TypeArguments[1].Name, visited),
-                    INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } t =>
-                        GatherTypeData(t.TypeArguments[0] as INamedTypeSymbol, t.TypeArguments[0].Name, visited),
-                    INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } t =>
-                        GatherTypeData(t.TypeArguments[0] as INamedTypeSymbol, t.TypeArguments[0].Name, visited),
-                    INamedTypeSymbol t => GatherTypeData(t, t.Name, visited),
-                    _ => null,
-                }
+                MemberType = memberType,
+                ElementType = elementType,
+                PrimitiveType = primitiveType,
             };
 
             return member;

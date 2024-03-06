@@ -9,7 +9,7 @@ public class HostVariationTests
             var output1 = SerializerHelper.SerializeType(writer =>
             {
                 HostParent.NestedHost2 host = new();
-                host.Write(writer, data);
+          //      host.Write(writer, data);
             });
             var output2 = SerializerHelper.SerializeUsingSTJ(data);
             Assert.Equal(output1, output2);

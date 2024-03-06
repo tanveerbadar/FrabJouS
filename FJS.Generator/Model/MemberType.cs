@@ -3,10 +3,8 @@ namespace FJS.Generator.Model;
 enum MemberType
 {
     Unspecified,
-    Number,
-    String,
+    Primitive,
     ComplexObject,
-    SequentialCollection,
-    AssociativeCollection,
+    Collection,
     Nullable,
 }

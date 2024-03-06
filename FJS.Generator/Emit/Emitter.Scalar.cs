@@ -9,18 +9,49 @@ namespace FJS.Generator.Emit;
 
 static partial class Emitter
 {
+    static void WritePrimitiveValue(List<StatementSyntax> stmts, string name, PrimitiveType primitiveType)
+    {
+        string methodName = null;
+        switch (primitiveType)
+        {
+            case PrimitiveType.String:
+                methodName = "WriteString";
+                break;
+            case PrimitiveType.Number:
+                methodName = "WriteNumber";
+                break;
+            case PrimitiveType.Boolean:
+                methodName = "WriteBoolean";
+                break;
+            default:
+                Debug.Fail($"We should never reach this. Member: {name}, type: {primitiveType}.");
+                break;
+        }
+        stmts.Add(
+            ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(SimpleMemberAccessExpression,
+                        IdentifierName("writer"),
+                        IdentifierName(methodName)),
+                    ArgumentList(SeparatedList(
+                        [
+                            Argument(LiteralExpression(StringLiteralExpression, Literal(name))),
+                            Argument(MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("obj"),
+                                IdentifierName(name))),
+                        ])))));
+    }
+
     static StatementSyntax WriteValue(string name, MemberType memberType, ExpressionSyntax nameExpression)
     {
         switch (memberType)
         {
-            case MemberType.Number:
             case MemberType.Nullable:
-            case MemberType.String:
                 return ExpressionStatement(
                             InvocationExpression(
                                 MemberAccessExpression(SimpleMemberAccessExpression,
                                     IdentifierName("writer"),
-                                    IdentifierName(memberType == MemberType.String ? "WriteString" : "WriteNumber")),
+                                    IdentifierName("WriteNumber")),
                                 ArgumentList(SeparatedList(
                                     [
                                         Argument(LiteralExpression(StringLiteralExpression, Literal(name))),
@@ -64,7 +95,7 @@ static partial class Emitter
                                         Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
                                     ])))),
                         WriteValue(
-                            member.Name, 
+                            member.Name,
                             member.MemberType,
                             MemberAccessExpression(SimpleMemberAccessExpression,
                                 IdentifierName("obj"),
@@ -104,6 +135,6 @@ static partial class Emitter
                 MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("obj"),
                         IdentifierName(member.Name))));
-        state.TypesToGenerate.Add(member.CollectionElementType);
+        state.TypesToGenerate.Add(member.ElementType);
     }
 }
