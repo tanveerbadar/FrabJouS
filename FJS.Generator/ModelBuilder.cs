@@ -156,6 +156,32 @@ static class ModelBuilder
                 case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } nullable:
                     memberType = MemberType.Nullable;
                     elementType = GatherTypeData(nullable.TypeArguments[0] as INamedTypeSymbol, nullable.TypeArguments[0].Name, visited);
+                    switch (nullable.TypeArguments[0])
+                    {
+                        case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
+                            primitiveType = PrimitiveType.String;
+                            break;
+                        case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
+                            primitiveType = PrimitiveType.Boolean;
+                            break;
+                        case INamedTypeSymbol
+                        {
+                            SpecialType:
+                        SpecialType.System_Byte or
+                        SpecialType.System_SByte or
+                        SpecialType.System_Int16 or
+                        SpecialType.System_UInt16 or
+                        SpecialType.System_Int32 or
+                        SpecialType.System_UInt32 or
+                        SpecialType.System_UInt64 or
+                        SpecialType.System_Int64 or
+                        SpecialType.System_Single or
+                        SpecialType.System_Double or
+                        SpecialType.System_Decimal
+                        }:
+                            primitiveType = PrimitiveType.Number;
+                            break;
+                    }
                     break;
                 default:
                     memberType = MemberType.ComplexObject;
