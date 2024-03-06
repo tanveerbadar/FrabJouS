@@ -55,7 +55,7 @@ public class ComplexPropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestData3WithStringKeys))]
 [RootType(typeof(TestData3WithIntegralKeys))]
 [RootType(typeof(TestData3WithArrayValues))]

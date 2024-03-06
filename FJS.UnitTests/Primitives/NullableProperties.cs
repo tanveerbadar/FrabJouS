@@ -19,7 +19,7 @@ public class NullablePropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(NullableProperties))]
 partial class NullablePropertiesHost
 {

@@ -31,7 +31,7 @@ public class SimplePropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestData2WithStringKeys))]
 [RootType(typeof(TestData2WithIntegralKeys))]
 partial class DictionaryWithSimpleValuesHost

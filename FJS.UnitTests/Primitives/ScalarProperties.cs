@@ -19,7 +19,7 @@ public class ScalarPropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestDataWithProperties))]
 partial class ScalarPropertiesHost
 {

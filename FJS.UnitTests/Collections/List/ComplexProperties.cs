@@ -16,7 +16,7 @@ public class ComplexPropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestData3))]
 partial class ListWithComplexValuesHost
 {

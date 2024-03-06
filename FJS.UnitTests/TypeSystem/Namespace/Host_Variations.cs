@@ -29,7 +29,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
         }
     }
 
-    [GeneratedSerialier]
+    [GeneratedSerializer]
     [RootType(typeof(TestData))]
     partial class GlobalHost1
     {
@@ -37,7 +37,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
 
     namespace Nested
     {
-        [GeneratedSerialier]
+        [GeneratedSerializer]
         [RootType(typeof(TestData))]
         public partial class NestedHost1
         {

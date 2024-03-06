@@ -19,7 +19,7 @@ public class ScalarFieldsTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestDataWithFields))]
 partial class ScalarFieldsHost
 {

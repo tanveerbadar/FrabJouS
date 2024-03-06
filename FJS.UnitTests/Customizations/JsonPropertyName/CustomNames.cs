@@ -44,7 +44,7 @@ public class CustomNameTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(NoCollision))]
 [RootType(typeof(CollisionWithDefaultName))]
 [RootType(typeof(CollisionThroughAttribute))]

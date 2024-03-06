@@ -18,7 +18,7 @@ public class IgnoredPropertiesTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(TestData6))]
 partial class IgnoredPropertiesHost
 {

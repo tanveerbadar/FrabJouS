@@ -18,7 +18,7 @@ public class NullableFieldsTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(NullableFields))]
 partial class NullableFieldsHost
 {

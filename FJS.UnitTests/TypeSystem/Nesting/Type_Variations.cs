@@ -16,7 +16,7 @@ public class TypeVariationTests
     }
 }
 
-[GeneratedSerialier]
+[GeneratedSerializer]
 [RootType(typeof(Parent.TestData))]
 partial class NestedHost3
 {

@@ -29,7 +29,7 @@ namespace FJS.UnitTests.TypeSystem.Namespace
         }
     }
 
-    [GeneratedSerialier]
+    [GeneratedSerializer]
     [RootType(typeof(TestData1))]
     [RootType(typeof(Nested.TestData2))]
     partial class GlobalHost2
