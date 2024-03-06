@@ -1,5 +1,3 @@
-using FJS.Common.Metadata;
-using FJS.UnitTests.Utils;
 using System.Text.Json.Serialization;
 
 namespace FJS.Customizations.JsonPropertyName;
@@ -12,7 +10,7 @@ public class CustomNameTests
         NoCollision data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost4 host = new();
+            CustomPropertyNamesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -25,7 +23,7 @@ public class CustomNameTests
         CollisionWithDefaultName data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost4 host = new();
+            CustomPropertyNamesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -38,7 +36,7 @@ public class CustomNameTests
         CollisionThroughAttribute data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost4 host = new();
+            CustomPropertyNamesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -50,7 +48,7 @@ public class CustomNameTests
 [RootType(typeof(NoCollision))]
 [RootType(typeof(CollisionWithDefaultName))]
 [RootType(typeof(CollisionThroughAttribute))]
-partial class SerializerHost4
+partial class CustomPropertyNamesHost
 {
 }
 

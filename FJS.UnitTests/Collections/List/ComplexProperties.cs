@@ -1,6 +1,3 @@
-using FJS.Common.Metadata;
-using System.Text;
-
 namespace FJS.UnitTests.Collections.List;
 
 public class ComplexPropertiesTests
@@ -11,7 +8,7 @@ public class ComplexPropertiesTests
         TestData3 data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost7 host = new();
+            ListWithComplexValuesHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -21,7 +18,7 @@ public class ComplexPropertiesTests
 
 [GeneratedSerialier]
 [RootType(typeof(TestData3))]
-partial class SerializerHost7
+partial class ListWithComplexValuesHost
 {
 }
 

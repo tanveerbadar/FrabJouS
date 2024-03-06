@@ -8,7 +8,7 @@ public class ObjectGraphTests
         SelfReference data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost1 host = new();
+            SelfReferenceAndCycleHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -21,7 +21,7 @@ public class ObjectGraphTests
         Cycle1 data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost1 host = new();
+            SelfReferenceAndCycleHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -34,7 +34,7 @@ public class ObjectGraphTests
         Cycle2 data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost10 host = new();
+            TransitiveClosureHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -47,7 +47,7 @@ public class ObjectGraphTests
         Cycle2 data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
-            SerializerHost1 host = new();
+            SelfReferenceAndCycleHost host = new();
             host.Write(writer, data);
         });
         var output2 = SerializerHelper.SerializeUsingSTJ(data);
@@ -74,13 +74,13 @@ class Cycle2
 [GeneratedSerialier]
 [RootType(typeof(SelfReference))]
 [RootType(typeof(Cycle1))]
-partial class SerializerHost1
+partial class SelfReferenceAndCycleHost
 {
 }
 
 [GeneratedSerialier]
 [RootType(typeof(Cycle2))]
-partial class SerializerHost10
+partial class TransitiveClosureHost
 {
 }
 
