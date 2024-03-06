@@ -55,5 +55,7 @@ class NullableProperties
 
     public char? CharProp { get; set; }
 
+    public bool? BoolProp { get; set; }
+
     public Rune? RuneProp { get; set; }
 }

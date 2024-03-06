@@ -84,7 +84,7 @@ static partial class Emitter
                                             InvocationExpression(
                                                 MemberAccessExpression(SimpleMemberAccessExpression,
                                                     IdentifierName("writer"),
-                                                    IdentifierName(member.MemberType == MemberType.String ? "WriteString" : "WriteNumber")),
+                                                    IdentifierName("WriteNumber")),
                                                 ArgumentList(SeparatedList(
                                                     [
                                                         Argument(MemberAccessExpression(SimpleMemberAccessExpression,

@@ -10,5 +10,7 @@ class MemberData
 
     public MemberType MemberType { get; set; }
 
-    public TypeData CollectionElementType { get; set; }
+    public PrimitiveType PrimitiveType { get; set; }
+
+    public TypeData ElementType { get; set; }
 }
