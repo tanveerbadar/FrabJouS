@@ -185,6 +185,7 @@ static class ModelBuilder
                     break;
                 default:
                     memberType = MemberType.ComplexObject;
+                    elementType = GatherTypeData(p.Type as INamedTypeSymbol, p.Type.Name, visited);
                     break;
             }
 
