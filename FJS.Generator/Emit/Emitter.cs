@@ -50,7 +50,7 @@ static partial class Emitter
         types.Select(t => GenerateMethodForType(t, state)).ToArray();
 
     static MethodDeclarationSyntax AddCatchAllWriteMethod()
-        => MethodDeclaration(ParseTypeName("void"), $"Write")
+        => MethodDeclaration(ParseTypeName("void"), "Write")
                              .AddModifiers(Token(PublicKeyword))
                              .AddParameterListParameters(
                                  [
@@ -103,9 +103,9 @@ static partial class Emitter
                 // case MemberType.Collection:
                 //     WriteArray(stmts, member);
                 //     break;
-                // case MemberType.ComplexObject:
-                //     WriteSubobject(state, stmts, member);
-                //     break;
+                case MemberType.ComplexObject:
+                    WriteSubobject(state, stmts, member);
+                    break;
                 case MemberType.Nullable:
                     WriteNullable(stmts, member);
                     break;
