@@ -9,7 +9,7 @@ namespace FJS.Generator.Emit;
 
 static partial class Emitter
 {
-    static void WritePrimitiveValue(List<StatementSyntax> stmts, string name, PrimitiveType primitiveType, ExpressionSyntax nameExpression)
+    static void WritePrimitiveValue(List<StatementSyntax> stmts, string name, PrimitiveType primitiveType, ExpressionSyntax nameExpression, ExpressionSyntax valueExpression)
     {
         string methodName = null;
         switch (primitiveType)
@@ -35,8 +35,8 @@ static partial class Emitter
                         IdentifierName(methodName)),
                     ArgumentList(SeparatedList(
                         [
-                            Argument(LiteralExpression(StringLiteralExpression, Literal(name))),
                             Argument(nameExpression),
+                            Argument(valueExpression),
                         ])))));
     }
 
@@ -58,6 +58,7 @@ static partial class Emitter
                 stmts,
                 member.Name,
                 member.PrimitiveType,
+                LiteralExpression(StringLiteralExpression, Literal(member.Name)),
                 MemberAccessExpression(SimpleMemberAccessExpression,
                     MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("obj"),
@@ -67,7 +68,7 @@ static partial class Emitter
         }
     }
 
-    static StatementSyntax WriteValue(string name, MemberType memberType, ExpressionSyntax nameExpression)
+    static StatementSyntax WriteValue(string name, MemberType memberType, ExpressionSyntax valueExpression)
     {
         switch (memberType)
         {
@@ -80,7 +81,7 @@ static partial class Emitter
                                 ArgumentList(SeparatedList(
                                     [
                                         Argument(LiteralExpression(StringLiteralExpression, Literal(name))),
-                                        Argument(nameExpression),
+                                        Argument(valueExpression),
                                     ]))));
             case MemberType.ComplexObject:
                 return
@@ -89,7 +90,7 @@ static partial class Emitter
                             ArgumentList(SeparatedList(
                                 [
                                     Argument(IdentifierName("writer")),
-                                    Argument(nameExpression),
+                                    Argument(valueExpression),
                                 ]))));
             default:
                 Debug.Fail($"We should never reach this. Member: {name}.");
@@ -150,7 +151,7 @@ static partial class Emitter
                                 MemberAccessExpression(SimpleMemberAccessExpression,
                                         IdentifierName("obj"),
                                         IdentifierName(member.Name)))
-                    }), 
+                    }),
                 ElseClause(Block(new StatementSyntax[] { WriteNullValue(member), }))));
 
         state.TypesToGenerate.Add(member.ElementType);

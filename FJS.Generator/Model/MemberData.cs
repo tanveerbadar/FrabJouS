@@ -12,5 +12,9 @@ class MemberData
 
     public PrimitiveType PrimitiveType { get; set; }
 
+    public CollectionType CollectionType { get; set; }
+
+    public MemberType CollectionElementWritingMethod { get; set; }
+
     public TypeData ElementType { get; set; }
 }
