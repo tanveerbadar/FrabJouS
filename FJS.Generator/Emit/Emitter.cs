@@ -15,8 +15,7 @@ static partial class Emitter
         CodeGeneratorState state = new();
         var surrogateType = ClassDeclaration(host.Name)
             .AddModifiers(Token(PartialKeyword))
-            .AddMembers(AddMethods(host.Types, state))
-            .AddMembers(AddCatchAllWriteMethod());
+            .AddMembers(AddMethods(host.Types, state));
 
         var types = state.TypesToGenerate;
 
@@ -29,6 +28,8 @@ static partial class Emitter
             }
             types.Remove(type);
         }
+
+        surrogateType = surrogateType.AddMembers(AddCatchAllWriteMethod());
 
         MemberDeclarationSyntax member = surrogateType;
 
@@ -82,7 +83,7 @@ static partial class Emitter
                              .AddBodyStatements(AddStatements(t.Members, state));
     }
 
-    static StatementSyntax[] AddStatements(List<MemberData> members, CodeGeneratorState state)
+    static StatementSyntax[] AddStatements(List<MemberInfo> members, CodeGeneratorState state)
     {
         List<StatementSyntax> stmts = new()
         {
@@ -94,31 +95,7 @@ static partial class Emitter
         };
         foreach (var member in members)
         {
-            if (!member.CanRead)
-            {
-                continue;
-            }
-            switch (member.MemberType)
-            {
-                // case MemberType.Collection:
-                //     WriteArray(stmts, member);
-                //     break;
-                case MemberType.ComplexObject:
-                    WriteSubobject(state, stmts, member);
-                    break;
-                case MemberType.Nullable:
-                    WriteNullable(stmts, member);
-                    break;
-                case MemberType.Primitive:
-                    WritePrimitiveValue(
-                        stmts,
-                        member.Name,
-                        member.PrimitiveType,
-                        MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("obj"),
-                                IdentifierName(member.Name)));
-                    break;
-            }
+            member.EmitWriteStatements(stmts);
         }
         stmts.Add(
             ExpressionStatement(

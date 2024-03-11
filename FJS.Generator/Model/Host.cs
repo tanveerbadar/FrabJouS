@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace FJS.Generator.Model;
 
-class Host
+public class Host
 {
     public string Name { get; set; }
 
