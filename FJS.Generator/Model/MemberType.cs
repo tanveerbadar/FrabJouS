@@ -1,6 +1,6 @@
 namespace FJS.Generator.Model;
 
-enum MemberType
+public enum MemberType
 {
     Unspecified,
     Primitive,

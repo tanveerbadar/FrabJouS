@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using FJS.Generator.Model;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -40,31 +41,9 @@ static partial class Emitter
                         ])))));
     }
 
-    static StatementSyntax WriteNullableValue(MemberData member)
+    static StatementSyntax WriteNullableValue(ComplexObjectInfo member)
     {
-        if (member.PrimitiveType == PrimitiveType.Unspecified)
-        {
-            return WriteValue(
-                        member.Name,
-                        member.MemberType,
-                        MemberAccessExpression(SimpleMemberAccessExpression,
-                            IdentifierName("obj"),
-                            IdentifierName(member.Name)));
-        }
-        else
-        {
-            List<StatementSyntax> stmts = new();
-            WritePrimitiveValue(
-                stmts,
-                member.Name,
-                member.PrimitiveType,
-                MemberAccessExpression(SimpleMemberAccessExpression,
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("obj"),
-                        IdentifierName(member.Name)),
-                    IdentifierName("Value")));
-            return stmts[0];
-        }
+        return default;
     }
 
     static StatementSyntax WriteValue(string name, MemberType memberType, ExpressionSyntax nameExpression)
@@ -99,7 +78,7 @@ static partial class Emitter
         return default;
     }
 
-    static void WriteNullable(List<StatementSyntax> stmts, MemberData member)
+    static void WriteNullable(List<StatementSyntax> stmts, ComplexObjectInfo member)
     {
         stmts.Add(
             IfStatement(
@@ -115,7 +94,7 @@ static partial class Emitter
                 ElseClause(Block(new StatementSyntax[] { WriteNullValue(member), }))));
     }
 
-    static ExpressionStatementSyntax WriteNullValue(MemberData member)
+    static ExpressionStatementSyntax WriteNullValue(MemberInfo member)
         => ExpressionStatement(
                 InvocationExpression(
                     MemberAccessExpression(SimpleMemberAccessExpression,
@@ -126,7 +105,7 @@ static partial class Emitter
                             Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
                         ]))));
 
-    static void WriteSubobject(CodeGeneratorState state, List<StatementSyntax> stmts, MemberData member)
+    static void WriteSubobject(CodeGeneratorState state, List<StatementSyntax> stmts, ComplexObjectInfo member)
     {
         stmts.Add(
             IfStatement(

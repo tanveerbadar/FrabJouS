@@ -8,7 +8,7 @@ namespace FJS.Generator.Emit;
 
 static partial class Emitter
 {
-    static void WriteArray(List<StatementSyntax> stmts, MemberData member)
+    static void WriteArray(List<StatementSyntax> stmts, MemberInfo member)
     {
         stmts.Add(
             ExpressionStatement(
@@ -52,7 +52,7 @@ static partial class Emitter
                         IdentifierName("WriteEndArray")))));
     }
 
-    static void WriteDictionary(List<StatementSyntax> stmts, MemberData member)
+    static void WriteDictionary(List<StatementSyntax> stmts, MemberInfo member)
     {
         stmts.Add(
             ExpressionStatement(
