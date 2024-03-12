@@ -22,7 +22,7 @@ static partial class Emitter
         while (types is { Count: > 0 })
         {
             var type = types[types.Count - 1];
-            if (state.Processed.Add(type.Name))
+            if (state.Processed.Add(type.FullName))
             {
                 surrogateType = surrogateType.AddMembers(GenerateMethodForType(type, state));
             }
@@ -68,18 +68,18 @@ static partial class Emitter
                                             ])),
                                         null)));
 
-    static MethodDeclarationSyntax GenerateMethodForType(TypeData t, CodeGeneratorState state)
+    static MethodDeclarationSyntax GenerateMethodForType(TypeData type, CodeGeneratorState state)
     {
-        state.Processed.Add(t.Name);
+        state.Processed.Add(type.FullName);
         return MethodDeclaration(ParseTypeName("void"), "Write")
                              .AddModifiers(Token(PublicKeyword))
                              .AddParameterListParameters(
                                  [
                                     Parameter(Identifier("writer")).WithType(ParseTypeName("Utf8JsonWriter")),
-                                    Parameter(Identifier("obj")).WithType(ParseTypeName(string.Join(".", t.Namespace, t.Name))),
+                                    Parameter(Identifier("obj")).WithType(ParseTypeName(type.FullName)),
                                  ]
                              )
-                             .AddBodyStatements(AddStatements(t.Members, $"{t.Namespace}.{t.Name}", state));
+                             .AddBodyStatements(AddStatements(type.Members, type.FullName, state));
     }
 
     static StatementSyntax[] AddStatements(List<MemberData> members, string type, CodeGeneratorState state)
