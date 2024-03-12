@@ -29,7 +29,7 @@ static partial class Emitter
             types.Remove(type);
         }
 
-        surrogateType = surrogateType.AddMembers(AddCatchAllWriteMethod());
+//        surrogateType = surrogateType.AddMembers(AddCatchAllWriteMethod());
         MemberDeclarationSyntax member = surrogateType;
 
         if (!string.IsNullOrEmpty(host.Namespace))
