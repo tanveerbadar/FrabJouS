@@ -16,5 +16,7 @@ class MemberData
 
     public MemberType ElementWritingMethod { get; set; }
 
+    public bool IsNullable { get; set; }
+
     public TypeData ElementType { get; set; }
 }

@@ -125,30 +125,40 @@ static partial class Emitter
 
     static void WriteSubobject(CodeGeneratorState state, List<StatementSyntax> stmts, MemberData member)
     {
-        stmts.Add(
-            IfStatement(
-                BinaryExpression(NotEqualsExpression,
-                    IdentifierName("obj"),
-                    LiteralExpression(NullLiteralExpression)),
-                Block(new StatementSyntax[]
-                    {
-                        ExpressionStatement(
-                            InvocationExpression(
-                                MemberAccessExpression(SimpleMemberAccessExpression,
-                                    IdentifierName("writer"),
-                                    IdentifierName("WritePropertyName")),
-                                ArgumentList(SeparatedList(
-                                    [
-                                        Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
-                                    ])))),
-                            WriteValue(
-                                member.Name,
-                                MemberType.ComplexObject,
-                                MemberAccessExpression(SimpleMemberAccessExpression,
-                                        IdentifierName("obj"),
-                                        IdentifierName(member.Name)))
-                    }),
-                ElseClause(Block(new StatementSyntax[] { WriteNullValue(member), }))));
+        StatementSyntax[] statements =
+        [
+            ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(SimpleMemberAccessExpression,
+                        IdentifierName("writer"),
+                        IdentifierName("WritePropertyName")),
+                    ArgumentList(SeparatedList(
+                        [
+                            Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+                        ])))),
+            WriteValue(
+                member.Name,
+                MemberType.ComplexObject,
+                MemberAccessExpression(SimpleMemberAccessExpression,
+                        IdentifierName("obj"),
+                        IdentifierName(member.Name)))
+        ];
+        if (member.IsNullable)
+        {
+            stmts.Add(
+                    IfStatement(
+                        BinaryExpression(NotEqualsExpression,
+                            MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("obj"),
+                                IdentifierName(member.Name)),
+                            LiteralExpression(NullLiteralExpression)),
+                        Block(statements),
+                        ElseClause(Block(new StatementSyntax[] { WriteNullValue(member), }))));
+        }
+        else
+        {
+            stmts.AddRange(statements);
+        }
 
         state.TypesToGenerate.Add(member.ElementType);
     }
