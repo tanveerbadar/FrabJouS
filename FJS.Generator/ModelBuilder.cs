@@ -114,20 +114,25 @@ static class ModelBuilder
             TypeData elementType = default;
             PrimitiveType primitiveType = default;
             CollectionType collectionType = default;
-            bool isNullable = false;
+            bool isNullable = false, isNullableElement = false;
             switch (p.Type)
             {
-                case IArrayTypeSymbol at:
+                case IArrayTypeSymbol array:
                     memberType = MemberType.Collection;
                     collectionType = CollectionType.Sequential;
-                    elementWritingMethod = GetElementWritingMethod(at.ElementType);
-                    elementType = GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited);
-                    isNullable = at.NullableAnnotation == NullableAnnotation.Annotated;
+                    elementWritingMethod = GetElementWritingMethod(array.ElementType);
+                    elementType = GatherTypeData(array.ElementType as INamedTypeSymbol, array.ElementType.Name, visited);
+                    isNullable = true;
+                    isNullableElement = array.ElementType.IsReferenceType;
+                    if (elementWritingMethod == MemberType.Primitive)
+                    {
+                        primitiveType = GetPrimitiveType(array.ElementType);
+                    }
                     break;
                 case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
                     memberType = MemberType.Primitive;
                     primitiveType = PrimitiveType.String;
-                    isNullable = p.Type.NullableAnnotation == NullableAnnotation.Annotated;
+                    isNullable = true;
                     break;
                 case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
                     memberType = MemberType.Primitive;
@@ -144,14 +149,24 @@ static class ModelBuilder
                     collectionType = CollectionType.Associative;
                     elementWritingMethod = GetElementWritingMethod(dict.TypeArguments[1]);
                     elementType = GatherTypeData(dict.TypeArguments[1] as INamedTypeSymbol, dict.TypeArguments[1].Name, visited);
-                    isNullable = dict.NullableAnnotation == NullableAnnotation.Annotated;
+                    isNullable = true;
+                    isNullableElement = dict.TypeArguments[1].IsReferenceType;
+                    if (elementWritingMethod == MemberType.Primitive)
+                    {
+                        primitiveType = GetPrimitiveType(dict.TypeArguments[1]);
+                    }
                     break;
                 case INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } list:
                     memberType = MemberType.Collection;
                     collectionType = CollectionType.Sequential;
                     elementWritingMethod = GetElementWritingMethod(list.TypeArguments[0]);
                     elementType = GatherTypeData(list.TypeArguments[0] as INamedTypeSymbol, list.TypeArguments[0].Name, visited);
-                    isNullable = list.NullableAnnotation == NullableAnnotation.Annotated;
+                    isNullable = true;
+                    isNullableElement = list.TypeArguments[0].IsReferenceType;
+                    if (elementWritingMethod == MemberType.Primitive)
+                    {
+                        primitiveType = GetPrimitiveType(list.TypeArguments[0]);
+                    }
                     break;
                 case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } nullable:
                     memberType = MemberType.Nullable;
@@ -160,18 +175,7 @@ static class ModelBuilder
                     isNullable = true;
                     if (elementWritingMethod == MemberType.Primitive)
                     {
-                        switch (nullable.TypeArguments[0])
-                        {
-                            case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
-                                primitiveType = PrimitiveType.String;
-                                break;
-                            case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
-                                primitiveType = PrimitiveType.Boolean;
-                                break;
-                            case INamedTypeSymbol nt when IsNumericType(nt.SpecialType):
-                                primitiveType = PrimitiveType.Number;
-                                break;
-                        }
+                        primitiveType = GetPrimitiveType(nullable.TypeArguments[0]);
                     }
                     break;
                 default:
@@ -193,6 +197,7 @@ static class ModelBuilder
                 ElementWritingMethod = elementWritingMethod,
                 ElementType = elementType,
                 IsNullable = isNullable,
+                IsNullableElement = isNullableElement,
             };
 
             typeData.Members.Add(member);
@@ -200,6 +205,15 @@ static class ModelBuilder
 
         return typeData;
     }
+
+    static PrimitiveType GetPrimitiveType(ITypeSymbol type)
+       => type switch
+       {
+           INamedTypeSymbol { SpecialType: SpecialType.System_String } => PrimitiveType.String,
+           INamedTypeSymbol { SpecialType: SpecialType.System_Boolean } => PrimitiveType.Boolean,
+           INamedTypeSymbol nt when IsNumericType(nt.SpecialType) => PrimitiveType.Number,
+           _ => PrimitiveType.Unspecified,
+       };
 
     static bool IsNumericType(SpecialType st) =>
         st is SpecialType.System_Byte or SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_UInt64 or SpecialType.System_Int64 or SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal;

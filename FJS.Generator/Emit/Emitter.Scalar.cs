@@ -57,6 +57,20 @@ static partial class Emitter
                                         IdentifierName(member.Name)),
                                     IdentifierName("Value")));
                 return stmts[0];
+            case MemberType.ComplexObject:
+                return
+                    ExpressionStatement(
+                        InvocationExpression(IdentifierName("Write"),
+                            ArgumentList(SeparatedList(
+                                [
+                                    Argument(IdentifierName("writer")),
+                                    Argument(
+                                        MemberAccessExpression(SimpleMemberAccessExpression,
+                                        MemberAccessExpression(SimpleMemberAccessExpression,
+                                            IdentifierName("obj"),
+                                            IdentifierName(member.Name)),
+                                        IdentifierName("Value"))),
+                                ]))));
             default:
                 Debug.Fail($"We should never reach this. Type: {type}, member: {member.Name}, writing method: {member.ElementWritingMethod}.");
                 break;
@@ -64,10 +78,18 @@ static partial class Emitter
         return default;
     }
 
-    static StatementSyntax WriteValue(string name, MemberType memberType, ExpressionSyntax nameExpression)
+    static StatementSyntax WriteValue(string name, MemberType memberType, PrimitiveType primitiveType, ExpressionSyntax nameExpression)
     {
         switch (memberType)
         {
+            case MemberType.Primitive:
+                List<StatementSyntax> stmts = new();
+                WritePrimitiveValue(
+                                stmts,
+                                name,
+                                primitiveType,
+                                nameExpression);
+                return stmts[0];
             case MemberType.Nullable:
                 return ExpressionStatement(
                             InvocationExpression(
@@ -88,12 +110,13 @@ static partial class Emitter
                                     Argument(IdentifierName("writer")),
                                     Argument(nameExpression),
                                 ]))));
+            case MemberType.Collection:
+                break;
             default:
-                Debug.Fail($"We should never reach this. Member: {name}.");
+                Debug.Fail($"We should never reach this. Member: {name}, type: {memberType}.");
                 break;
         }
-        // This is unreachable but the compiler doesn't seem to know it. Probably because there's no [DoesNotReturn] on netstandard.
-        return default;
+        return EmptyStatement();
     }
 
     static void WriteNullable(List<StatementSyntax> stmts, string type, MemberData member)
@@ -139,6 +162,7 @@ static partial class Emitter
             WriteValue(
                 member.Name,
                 MemberType.ComplexObject,
+                PrimitiveType.Unspecified,
                 MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("obj"),
                         IdentifierName(member.Name)))

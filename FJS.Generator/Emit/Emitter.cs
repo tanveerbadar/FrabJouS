@@ -100,9 +100,9 @@ static partial class Emitter
             }
             switch (member.MemberType)
             {
-                // case MemberType.Collection:
-                //     WriteArray(stmts, member);
-                //     break;
+                case MemberType.Collection:
+                    WriteCollection(stmts, member);
+                    break;
                 case MemberType.ComplexObject:
                     WriteSubobject(state, stmts, member);
                     break;
