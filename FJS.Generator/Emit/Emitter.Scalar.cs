@@ -40,31 +40,28 @@ static partial class Emitter
                         ])))));
     }
 
-    static StatementSyntax WriteNullableValue(MemberData member)
+    static StatementSyntax WriteNullableValue(string type, MemberData member)
     {
-        if (member.PrimitiveType == PrimitiveType.Unspecified)
+        List<StatementSyntax> stmts = default;
+        switch (member.ElementWritingMethod)
         {
-            return WriteValue(
-                        member.Name,
-                        member.MemberType,
-                        MemberAccessExpression(SimpleMemberAccessExpression,
-                            IdentifierName("obj"),
-                            IdentifierName(member.Name)));
+            case MemberType.Primitive:
+                stmts = new();
+                WritePrimitiveValue(
+                                stmts,
+                                member.Name,
+                                member.PrimitiveType,
+                                MemberAccessExpression(SimpleMemberAccessExpression,
+                                    MemberAccessExpression(SimpleMemberAccessExpression,
+                                        IdentifierName("obj"),
+                                        IdentifierName(member.Name)),
+                                    IdentifierName("Value")));
+                return stmts[0];
+            default:
+                Debug.Fail($"We should never reach this. Type: {type}, member: {member.Name}, writing method: {member.ElementWritingMethod}.");
+                break;
         }
-        else
-        {
-            List<StatementSyntax> stmts = new();
-            WritePrimitiveValue(
-                stmts,
-                member.Name,
-                member.PrimitiveType,
-                MemberAccessExpression(SimpleMemberAccessExpression,
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("obj"),
-                        IdentifierName(member.Name)),
-                    IdentifierName("Value")));
-            return stmts[0];
-        }
+        return default;
     }
 
     static StatementSyntax WriteValue(string name, MemberType memberType, ExpressionSyntax nameExpression)
@@ -99,7 +96,7 @@ static partial class Emitter
         return default;
     }
 
-    static void WriteNullable(List<StatementSyntax> stmts, MemberData member)
+    static void WriteNullable(List<StatementSyntax> stmts, string type, MemberData member)
     {
         stmts.Add(
             IfStatement(
@@ -110,7 +107,7 @@ static partial class Emitter
                     IdentifierName("HasValue")),
                 Block(new StatementSyntax[]
                     {
-                        WriteNullableValue(member),
+                        WriteNullableValue(type, member),
                     }),
                 ElseClause(Block(new StatementSyntax[] { WriteNullValue(member), }))));
     }
@@ -150,7 +147,7 @@ static partial class Emitter
                                 MemberAccessExpression(SimpleMemberAccessExpression,
                                         IdentifierName("obj"),
                                         IdentifierName(member.Name)))
-                    }), 
+                    }),
                 ElseClause(Block(new StatementSyntax[] { WriteNullValue(member), }))));
 
         state.TypesToGenerate.Add(member.ElementType);

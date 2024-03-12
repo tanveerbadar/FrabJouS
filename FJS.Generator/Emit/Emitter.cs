@@ -71,7 +71,7 @@ static partial class Emitter
     static MethodDeclarationSyntax GenerateMethodForType(TypeData t, CodeGeneratorState state)
     {
         state.Processed.Add(t.Name);
-        return MethodDeclaration(ParseTypeName("void"), $"Write")
+        return MethodDeclaration(ParseTypeName("void"), "Write")
                              .AddModifiers(Token(PublicKeyword))
                              .AddParameterListParameters(
                                  [
@@ -79,10 +79,10 @@ static partial class Emitter
                                     Parameter(Identifier("obj")).WithType(ParseTypeName(string.Join(".", t.Namespace, t.Name))),
                                  ]
                              )
-                             .AddBodyStatements(AddStatements(t.Members, state));
+                             .AddBodyStatements(AddStatements(t.Members, $"{t.Namespace}.{t.Name}", state));
     }
 
-    static StatementSyntax[] AddStatements(List<MemberData> members, CodeGeneratorState state)
+    static StatementSyntax[] AddStatements(List<MemberData> members, string type, CodeGeneratorState state)
     {
         List<StatementSyntax> stmts = new()
         {
@@ -107,7 +107,7 @@ static partial class Emitter
                     WriteSubobject(state, stmts, member);
                     break;
                 case MemberType.Nullable:
-                    WriteNullable(stmts, member);
+                    WriteNullable(stmts, type, member);
                     break;
                 case MemberType.Primitive:
                     WritePrimitiveValue(

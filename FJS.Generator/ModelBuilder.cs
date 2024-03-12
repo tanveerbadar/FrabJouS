@@ -108,15 +108,18 @@ static class ModelBuilder
             .OfType<IPropertySymbol>()
             .Where(p => !p.IsStatic && !p.IsIndexer && p.GetMethod?.DeclaredAccessibility == Accessibility.Public);
 
-        typeData.Members.AddRange(props.Select(p =>
+        foreach (var p in props)
         {
-            MemberType memberType = default;
+            MemberType memberType = default, elementWritingMethod = default;
             TypeData elementType = default;
             PrimitiveType primitiveType = default;
+            CollectionType collectionType = default;
             switch (p.Type)
             {
                 case IArrayTypeSymbol at:
                     memberType = MemberType.Collection;
+                    collectionType = CollectionType.Sequential;
+                    elementWritingMethod = GetElementWritingMethod(at.ElementType);
                     elementType = GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited);
                     break;
                 case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
@@ -127,65 +130,46 @@ static class ModelBuilder
                     memberType = MemberType.Primitive;
                     primitiveType = PrimitiveType.Boolean;
                     break;
-                case INamedTypeSymbol
-                {
-                    SpecialType:
-                        SpecialType.System_Byte or
-                        SpecialType.System_SByte or
-                        SpecialType.System_Int16 or
-                        SpecialType.System_UInt16 or
-                        SpecialType.System_Int32 or
-                        SpecialType.System_UInt32 or
-                        SpecialType.System_UInt64 or
-                        SpecialType.System_Int64 or
-                        SpecialType.System_Single or
-                        SpecialType.System_Double or
-                        SpecialType.System_Decimal
-                }:
+                case INamedTypeSymbol nt when IsNumericType(nt.SpecialType):
                     memberType = MemberType.Primitive;
                     primitiveType = PrimitiveType.Number;
                     break;
                 case INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } dict:
                     memberType = MemberType.Collection;
+                    collectionType = CollectionType.Associative;
+                    elementWritingMethod = GetElementWritingMethod(dict.TypeArguments[1]);
                     elementType = GatherTypeData(dict.TypeArguments[1] as INamedTypeSymbol, dict.TypeArguments[1].Name, visited);
                     break;
                 case INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } list:
                     memberType = MemberType.Collection;
+                    collectionType = CollectionType.Sequential;
+                    elementWritingMethod = GetElementWritingMethod(list.TypeArguments[0]);
                     elementType = GatherTypeData(list.TypeArguments[0] as INamedTypeSymbol, list.TypeArguments[0].Name, visited);
                     break;
                 case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } nullable:
                     memberType = MemberType.Nullable;
                     elementType = GatherTypeData(nullable.TypeArguments[0] as INamedTypeSymbol, nullable.TypeArguments[0].Name, visited);
-                    switch (nullable.TypeArguments[0])
+                    elementWritingMethod = GetElementWritingMethod(nullable.TypeArguments[0]);
+                    if (elementWritingMethod == MemberType.Primitive)
                     {
-                        case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
-                            primitiveType = PrimitiveType.String;
-                            break;
-                        case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
-                            primitiveType = PrimitiveType.Boolean;
-                            break;
-                        case INamedTypeSymbol
+                        switch (nullable.TypeArguments[0])
                         {
-                            SpecialType:
-                        SpecialType.System_Byte or
-                        SpecialType.System_SByte or
-                        SpecialType.System_Int16 or
-                        SpecialType.System_UInt16 or
-                        SpecialType.System_Int32 or
-                        SpecialType.System_UInt32 or
-                        SpecialType.System_UInt64 or
-                        SpecialType.System_Int64 or
-                        SpecialType.System_Single or
-                        SpecialType.System_Double or
-                        SpecialType.System_Decimal
-                        }:
-                            primitiveType = PrimitiveType.Number;
-                            break;
+                            case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
+                                primitiveType = PrimitiveType.String;
+                                break;
+                            case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
+                                primitiveType = PrimitiveType.Boolean;
+                                break;
+                            case INamedTypeSymbol nt when IsNumericType(nt.SpecialType):
+                                primitiveType = PrimitiveType.Number;
+                                break;
+                        }
                     }
                     break;
                 default:
                     memberType = MemberType.ComplexObject;
                     elementType = GatherTypeData(p.Type as INamedTypeSymbol, p.Type.Name, visited);
+                    elementWritingMethod = GetElementWritingMethod(p.Type);
                     break;
             }
 
@@ -195,14 +179,40 @@ static class ModelBuilder
                 CanRead = !p.IsReadOnly,
                 CanWrite = !p.IsWriteOnly,
                 MemberType = memberType,
-                ElementType = elementType,
                 PrimitiveType = primitiveType,
+                CollectionType = collectionType,
+                ElementWritingMethod = elementWritingMethod,
+                ElementType = elementType,
             };
 
-            return member;
-        }));
+            typeData.Members.Add(member);
+        }
 
         return typeData;
     }
 
+    static bool IsNumericType(SpecialType st) =>
+        st is SpecialType.System_Byte or SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_UInt64 or SpecialType.System_Int64 or SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal;
+
+    static MemberType GetElementWritingMethod(ITypeSymbol type)
+    {
+        switch (type)
+        {
+            case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
+                return MemberType.Primitive;
+            case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
+                return MemberType.Primitive;
+            case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 }:
+            case INamedTypeSymbol nt when IsNumericType(nt.SpecialType):
+                return MemberType.Primitive;
+            case IArrayTypeSymbol:
+            case INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 }:
+            case INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 }:
+                return MemberType.Collection;
+            case INamedTypeSymbol:
+                return MemberType.ComplexObject;
+            default:
+                return MemberType.Unspecified;
+        }
+    }
 }
