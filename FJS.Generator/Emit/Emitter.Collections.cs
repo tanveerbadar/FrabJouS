@@ -8,18 +8,22 @@ namespace FJS.Generator.Emit;
 
 static partial class Emitter
 {
-    static void WriteCollection(List<StatementSyntax> stmts, MemberData member)
+    static void WriteCollection(CodeGeneratorState state, List<StatementSyntax> stmts, MemberData member)
     {
         switch (member.CollectionType)
         {
             case CollectionType.Sequential:
-                WriteArray(stmts, member);
+                WriteArray(state, stmts, member);
                 break;
         }
     }
 
-    static void WriteArray(List<StatementSyntax> stmts, MemberData member)
+    static void WriteArray(CodeGeneratorState state, List<StatementSyntax> stmts, MemberData member)
     {
+        if (member.ElementWritingMethod == MemberType.ComplexObject)
+        {
+            state.TypesToGenerate.Add(member.ElementType);
+        }
         stmts.Add(
             ExpressionStatement(
                 InvocationExpression(

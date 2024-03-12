@@ -29,7 +29,7 @@ static partial class Emitter
             types.Remove(type);
         }
 
-//        surrogateType = surrogateType.AddMembers(AddCatchAllWriteMethod());
+        //        surrogateType = surrogateType.AddMembers(AddCatchAllWriteMethod());
         MemberDeclarationSyntax member = surrogateType;
 
         if (!string.IsNullOrEmpty(host.Namespace))
@@ -101,13 +101,13 @@ static partial class Emitter
             switch (member.MemberType)
             {
                 case MemberType.Collection:
-                    WriteCollection(stmts, member);
+                    WriteCollection(state, stmts, member);
                     break;
                 case MemberType.ComplexObject:
                     WriteSubobject(state, stmts, member);
                     break;
                 case MemberType.Nullable:
-                    WriteNullable(stmts, type, member);
+                    WriteNullable(state, stmts, type, member);
                     break;
                 case MemberType.Primitive:
                     WritePrimitiveValue(
