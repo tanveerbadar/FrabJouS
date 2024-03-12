@@ -7,7 +7,7 @@ public class NullableFieldsTests
     [Fact]
     public void Serialize()
     {
-        NullableFieldsHost data = new();
+        NullableFields data = new();
         var output1 = SerializerHelper.SerializeType(writer =>
         {
             NullableFieldsHost host = new();
