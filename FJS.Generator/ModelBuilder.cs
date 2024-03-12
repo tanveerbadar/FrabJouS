@@ -114,6 +114,7 @@ static class ModelBuilder
             TypeData elementType = default;
             PrimitiveType primitiveType = default;
             CollectionType collectionType = default;
+            bool isNullable = false;
             switch (p.Type)
             {
                 case IArrayTypeSymbol at:
@@ -121,35 +122,42 @@ static class ModelBuilder
                     collectionType = CollectionType.Sequential;
                     elementWritingMethod = GetElementWritingMethod(at.ElementType);
                     elementType = GatherTypeData(at.ElementType as INamedTypeSymbol, at.ElementType.Name, visited);
+                    isNullable = at.NullableAnnotation == NullableAnnotation.Annotated;
                     break;
                 case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
                     memberType = MemberType.Primitive;
                     primitiveType = PrimitiveType.String;
+                    isNullable = p.Type.NullableAnnotation == NullableAnnotation.Annotated;
                     break;
                 case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
                     memberType = MemberType.Primitive;
                     primitiveType = PrimitiveType.Boolean;
+                    isNullable = false;
                     break;
                 case INamedTypeSymbol nt when IsNumericType(nt.SpecialType):
                     memberType = MemberType.Primitive;
                     primitiveType = PrimitiveType.Number;
+                    isNullable = false;
                     break;
                 case INamedTypeSymbol { Name: "Dictionary", IsGenericType: true, Arity: 2 } dict:
                     memberType = MemberType.Collection;
                     collectionType = CollectionType.Associative;
                     elementWritingMethod = GetElementWritingMethod(dict.TypeArguments[1]);
                     elementType = GatherTypeData(dict.TypeArguments[1] as INamedTypeSymbol, dict.TypeArguments[1].Name, visited);
+                    isNullable = dict.NullableAnnotation == NullableAnnotation.Annotated;
                     break;
                 case INamedTypeSymbol { Name: "List", IsGenericType: true, Arity: 1 } list:
                     memberType = MemberType.Collection;
                     collectionType = CollectionType.Sequential;
                     elementWritingMethod = GetElementWritingMethod(list.TypeArguments[0]);
                     elementType = GatherTypeData(list.TypeArguments[0] as INamedTypeSymbol, list.TypeArguments[0].Name, visited);
+                    isNullable = list.NullableAnnotation == NullableAnnotation.Annotated;
                     break;
                 case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 } nullable:
                     memberType = MemberType.Nullable;
                     elementType = GatherTypeData(nullable.TypeArguments[0] as INamedTypeSymbol, nullable.TypeArguments[0].Name, visited);
                     elementWritingMethod = GetElementWritingMethod(nullable.TypeArguments[0]);
+                    isNullable = true;
                     if (elementWritingMethod == MemberType.Primitive)
                     {
                         switch (nullable.TypeArguments[0])
@@ -170,6 +178,7 @@ static class ModelBuilder
                     memberType = MemberType.ComplexObject;
                     elementType = GatherTypeData(p.Type as INamedTypeSymbol, p.Type.Name, visited);
                     elementWritingMethod = GetElementWritingMethod(p.Type);
+                    isNullable = p.Type.IsReferenceType;
                     break;
             }
 
@@ -183,6 +192,7 @@ static class ModelBuilder
                 CollectionType = collectionType,
                 ElementWritingMethod = elementWritingMethod,
                 ElementType = elementType,
+                IsNullable = isNullable,
             };
 
             typeData.Members.Add(member);
@@ -199,9 +209,7 @@ static class ModelBuilder
         switch (type)
         {
             case INamedTypeSymbol { SpecialType: SpecialType.System_String }:
-                return MemberType.Primitive;
             case INamedTypeSymbol { SpecialType: SpecialType.System_Boolean }:
-                return MemberType.Primitive;
             case INamedTypeSymbol { Name: "Nullable", IsGenericType: true, Arity: 1 }:
             case INamedTypeSymbol nt when IsNumericType(nt.SpecialType):
                 return MemberType.Primitive;
