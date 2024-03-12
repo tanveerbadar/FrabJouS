@@ -40,7 +40,7 @@ static partial class Emitter
                         ])))));
     }
 
-    static StatementSyntax WriteNullableValue(string type, MemberData member)
+    static StatementSyntax WriteNullableValue(CodeGeneratorState state, string type, MemberData member)
     {
         List<StatementSyntax> stmts = default;
         switch (member.ElementWritingMethod)
@@ -58,6 +58,7 @@ static partial class Emitter
                                     IdentifierName("Value")));
                 return stmts[0];
             case MemberType.ComplexObject:
+                state.TypesToGenerate.Add(member.ElementType);
                 return
                     ExpressionStatement(
                         InvocationExpression(IdentifierName("Write"),
@@ -119,7 +120,7 @@ static partial class Emitter
         return EmptyStatement();
     }
 
-    static void WriteNullable(List<StatementSyntax> stmts, string type, MemberData member)
+    static void WriteNullable(CodeGeneratorState state, List<StatementSyntax> stmts, string type, MemberData member)
     {
         stmts.Add(
             IfStatement(
@@ -130,7 +131,7 @@ static partial class Emitter
                     IdentifierName("HasValue")),
                 Block(new StatementSyntax[]
                     {
-                        WriteNullableValue(type, member),
+                        WriteNullableValue(state, type, member),
                     }),
                 ElseClause(Block(new StatementSyntax[] { WriteNullValue(member), }))));
     }

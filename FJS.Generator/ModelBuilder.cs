@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FJS.Generator.Model;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FJS.Generator;
@@ -21,9 +22,11 @@ static class ModelBuilder
                                 .ArgumentList
                                 .Arguments[0]
                                 .Expression;
-                            var enabledType = GetFQName(arg.Type);
+
+                            var sym1 = semanticModel.GetSymbolInfo(arg.Type);
+                            var enabledType = GetFQName(arg.Type, semanticModel);
                             return (EnabledType: enabledType,
-                                Symbol: (INamedTypeSymbol)semanticModel.Compilation.GetSymbolsWithName(enabledType).FirstOrDefault());
+                                Symbol: (INamedTypeSymbol)sym1.Symbol);
                         })
                         .Where(sym => sym.Symbol != null)
                         .GroupBy(sym => sym.EnabledType)
@@ -38,14 +41,23 @@ static class ModelBuilder
         return host;
     }
 
-    static string GetFQName(TypeSyntax type)
+    static string GetFQName(TypeSyntax type, SemanticModel semanticModel)
     {
-        return type switch
+        switch (type)
         {
-            SimpleNameSyntax sn => sn.Identifier.Text,
-            QualifiedNameSyntax qn => string.Join(".", GetFQName(qn.Left), GetFQName(qn.Right)),
-            _ => string.Empty,
-        };
+            case SimpleNameSyntax sn:
+                return sn.Identifier.Text;
+            case QualifiedNameSyntax qn:
+                var symbol = semanticModel.GetSymbolInfo(qn.Left);
+                var left = string.Empty;
+                if (symbol.Symbol is INamedTypeSymbol nt)
+                {
+                    left = nt.Name + ".";
+                }
+                return $"{left}{GetFQName(qn.Right, semanticModel)}";
+            default:
+                return string.Empty;
+        }
     }
 
     static string GetNamespace(ClassDeclarationSyntax member)

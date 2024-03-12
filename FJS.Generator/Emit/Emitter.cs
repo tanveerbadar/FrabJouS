@@ -15,21 +15,21 @@ static partial class Emitter
         CodeGeneratorState state = new();
         var surrogateType = ClassDeclaration(host.Name)
             .AddModifiers(Token(PartialKeyword))
-            .AddMembers(AddMethods(host.Types, state))
-            .AddMembers(AddCatchAllWriteMethod());
+            .AddMembers(AddMethods(host.Types, state));
 
         var types = state.TypesToGenerate;
 
         while (types is { Count: > 0 })
         {
             var type = types[types.Count - 1];
-            if (state.Processed.Add(type.Name))
+            if (state.Processed.Add(type.FullName))
             {
                 surrogateType = surrogateType.AddMembers(GenerateMethodForType(type, state));
             }
             types.Remove(type);
         }
 
+        surrogateType = surrogateType.AddMembers(AddCatchAllWriteMethod());
         MemberDeclarationSyntax member = surrogateType;
 
         if (!string.IsNullOrEmpty(host.Namespace))
@@ -68,18 +68,18 @@ static partial class Emitter
                                             ])),
                                         null)));
 
-    static MethodDeclarationSyntax GenerateMethodForType(TypeData t, CodeGeneratorState state)
+    static MethodDeclarationSyntax GenerateMethodForType(TypeData type, CodeGeneratorState state)
     {
-        state.Processed.Add(t.Name);
+        state.Processed.Add(type.FullName);
         return MethodDeclaration(ParseTypeName("void"), "Write")
                              .AddModifiers(Token(PublicKeyword))
                              .AddParameterListParameters(
                                  [
                                     Parameter(Identifier("writer")).WithType(ParseTypeName("Utf8JsonWriter")),
-                                    Parameter(Identifier("obj")).WithType(ParseTypeName(string.Join(".", t.Namespace, t.Name))),
+                                    Parameter(Identifier("obj")).WithType(ParseTypeName(type.FullName)),
                                  ]
                              )
-                             .AddBodyStatements(AddStatements(t.Members, $"{t.Namespace}.{t.Name}", state));
+                             .AddBodyStatements(AddStatements(type.Members, type.FullName, state));
     }
 
     static StatementSyntax[] AddStatements(List<MemberData> members, string type, CodeGeneratorState state)
@@ -101,13 +101,13 @@ static partial class Emitter
             switch (member.MemberType)
             {
                 case MemberType.Collection:
-                    WriteCollection(stmts, member);
+                    WriteCollection(state, stmts, member);
                     break;
                 case MemberType.ComplexObject:
                     WriteSubobject(state, stmts, member);
                     break;
                 case MemberType.Nullable:
-                    WriteNullable(stmts, type, member);
+                    WriteNullable(state, stmts, type, member);
                     break;
                 case MemberType.Primitive:
                     WritePrimitiveValue(
