@@ -15,8 +15,7 @@ static partial class Emitter
         CodeGeneratorState state = new();
         var surrogateType = ClassDeclaration(host.Name)
             .AddModifiers(Token(PartialKeyword))
-            .AddMembers(AddMethods(host.Types, state))
-            .AddMembers(AddCatchAllWriteMethod());
+            .AddMembers(AddMethods(host.Types, state));
 
         var types = state.TypesToGenerate;
 
@@ -30,6 +29,7 @@ static partial class Emitter
             types.Remove(type);
         }
 
+        surrogateType = surrogateType.AddMembers(AddCatchAllWriteMethod());
         MemberDeclarationSyntax member = surrogateType;
 
         if (!string.IsNullOrEmpty(host.Namespace))
