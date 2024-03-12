@@ -8,6 +8,16 @@ namespace FJS.Generator.Emit;
 
 static partial class Emitter
 {
+    static void WriteCollection(List<StatementSyntax> stmts, MemberData member)
+    {
+        switch (member.CollectionType)
+        {
+            case CollectionType.Sequential:
+                WriteArray(stmts, member);
+                break;
+        }
+    }
+
     static void WriteArray(List<StatementSyntax> stmts, MemberData member)
     {
         stmts.Add(
@@ -26,6 +36,19 @@ static partial class Emitter
                     MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("writer"),
                         IdentifierName("WriteStartArray")))));
+
+        var body = WriteValue(member.Name, member.ElementWritingMethod, member.PrimitiveType, IdentifierName("iter"));
+
+        if (member.IsNullableElement)
+        {
+            body =
+                IfStatement(
+                    BinaryExpression(NotEqualsExpression,
+                        IdentifierName("iter"),
+                        LiteralExpression(NullLiteralExpression)),
+                    Block(new StatementSyntax[] { body }));
+        }
+
         stmts.Add(
             IfStatement(
                 BinaryExpression(NotEqualsExpression,
@@ -39,11 +62,7 @@ static partial class Emitter
                     MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("obj"),
                         IdentifierName(member.Name)),
-                        Block(
-                            new StatementSyntax[]
-                            {
-                                WriteValue("iter", MemberType.ComplexObject, IdentifierName("iter"))
-                            }))));
+                        Block(new StatementSyntax[] { body }))));
         stmts.Add(
             ExpressionStatement(
                 InvocationExpression(

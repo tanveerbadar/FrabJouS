@@ -18,5 +18,7 @@ class MemberData
 
     public bool IsNullable { get; set; }
 
+    public bool IsNullableElement { get; set; }
+
     public TypeData ElementType { get; set; }
 }
