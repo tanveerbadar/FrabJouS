@@ -38,12 +38,6 @@ static partial class Emitter
                         [
                             Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
                         ])))));
-        stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("writer"),
-                        IdentifierName("WriteStartArray")))));
 
         var body = WriteValue(member.Name, member.ElementWritingMethod, member.PrimitiveType, IdentifierName("iter"));
 
@@ -64,19 +58,31 @@ static partial class Emitter
                         IdentifierName("obj"),
                         IdentifierName(member.Name)),
                     LiteralExpression(NullLiteralExpression)),
-                ForEachStatement(
-                    ParseTypeName("var"),
-                    "iter",
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("obj"),
-                        IdentifierName(member.Name)),
-                        Block(new StatementSyntax[] { body }))));
-        stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("writer"),
-                        IdentifierName("WriteEndArray")))));
+                Block(
+                    ExpressionStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("writer"),
+                                IdentifierName("WriteStartArray")))),
+                    ForEachStatement(
+                        ParseTypeName("var"),
+                        "iter",
+                        MemberAccessExpression(SimpleMemberAccessExpression,
+                            IdentifierName("obj"),
+                            IdentifierName(member.Name)),
+                            Block(new StatementSyntax[] { body })),
+                    ExpressionStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("writer"),
+                                IdentifierName("WriteEndArray"))))),
+                ElseClause(
+                    Block(
+                        ExpressionStatement(
+                            InvocationExpression(
+                                MemberAccessExpression(SimpleMemberAccessExpression,
+                                    IdentifierName("writer"),
+                                    IdentifierName("WriteNullValue"))))))));
     }
 
     static void WriteDictionary(CodeGeneratorState state, List<StatementSyntax> stmts, MemberData member)
@@ -91,12 +97,6 @@ static partial class Emitter
                         [
                             Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
                         ])))));
-        stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("writer"),
-                        IdentifierName("WriteStartObject")))));
 
         List<StatementSyntax> statements = new();
 
@@ -175,18 +175,36 @@ static partial class Emitter
         }
 
         stmts.Add(
-            ForEachStatement(
-                ParseTypeName("var"),
-                    "kvp",
+             IfStatement(
+                BinaryExpression(NotEqualsExpression,
                     MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("obj"),
                         IdentifierName(member.Name)),
-                        Block(statements)));
-        stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("writer"),
-                        IdentifierName("WriteEndObject")))));
+                    LiteralExpression(NullLiteralExpression)),
+                Block(
+                    ExpressionStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("writer"),
+                                IdentifierName("WriteStartObject")))),
+                    ForEachStatement(
+                        ParseTypeName("var"),
+                            "kvp",
+                        MemberAccessExpression(SimpleMemberAccessExpression,
+                            IdentifierName("obj"),
+                            IdentifierName(member.Name)),
+                            Block(statements)),
+                    ExpressionStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("writer"),
+                                IdentifierName("WriteEndObject"))))),
+                ElseClause(
+                    Block(
+                        ExpressionStatement(
+                            InvocationExpression(
+                                MemberAccessExpression(SimpleMemberAccessExpression,
+                                    IdentifierName("writer"),
+                                    IdentifierName("WriteNullValue"))))))));
     }
 }
