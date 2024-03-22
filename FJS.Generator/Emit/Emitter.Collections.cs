@@ -29,15 +29,10 @@ static partial class Emitter
             state.TypesToGenerate.Add(member.ElementType);
         }
         stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("writer"),
-                        IdentifierName("WritePropertyName")),
-                    ArgumentList(SeparatedList(
-                        [
-                            Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
-                        ])))));
+            InvokeMethod("writer", "WritePropertyName",
+            [
+                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+            ]));
 
         var body = WriteValue(member.Name, member.ElementWritingMethod, member.PrimitiveType, IdentifierName("iter"));
 
@@ -59,11 +54,7 @@ static partial class Emitter
                         IdentifierName(member.Name)),
                     LiteralExpression(NullLiteralExpression)),
                 Block(
-                    ExpressionStatement(
-                        InvocationExpression(
-                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("writer"),
-                                IdentifierName("WriteStartArray")))),
+                    InvokeMethod("writer", "WriteStartArray"),
                     ForEachStatement(
                         ParseTypeName("var"),
                         "iter",
@@ -71,32 +62,17 @@ static partial class Emitter
                             IdentifierName("obj"),
                             IdentifierName(member.Name)),
                             Block(new StatementSyntax[] { body })),
-                    ExpressionStatement(
-                        InvocationExpression(
-                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("writer"),
-                                IdentifierName("WriteEndArray"))))),
-                ElseClause(
-                    Block(
-                        ExpressionStatement(
-                            InvocationExpression(
-                                MemberAccessExpression(SimpleMemberAccessExpression,
-                                    IdentifierName("writer"),
-                                    IdentifierName("WriteNullValue"))))))));
+                    InvokeMethod("writer", "WriteEndArray")),
+                ElseClause(Block(InvokeMethod("writer", "WriteNullValue")))));
     }
 
     static void WriteDictionary(CodeGeneratorState state, List<StatementSyntax> stmts, MemberData member)
     {
         stmts.Add(
-            ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(SimpleMemberAccessExpression,
-                        IdentifierName("writer"),
-                        IdentifierName("WritePropertyName")),
-                    ArgumentList(SeparatedList(
-                        [
-                            Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
-                        ])))));
+            InvokeMethod("writer", "WritePropertyName",
+            [
+                Argument(LiteralExpression(StringLiteralExpression, Literal(member.Name)))
+            ]));
 
         List<StatementSyntax> statements = new();
 
@@ -120,73 +96,57 @@ static partial class Emitter
                         break;
                 }
                 statements.Add(
-                    ExpressionStatement(
-                        InvocationExpression(
+                    InvokeMethod("writer", methodName,
+                    [
+                        Argument(
+                            InvocationExpression(
+                                MemberAccessExpression(SimpleMemberAccessExpression,
+                                    MemberAccessExpression(SimpleMemberAccessExpression,
+                                        IdentifierName("kvp"),
+                                        IdentifierName("Key")),
+                                    IdentifierName("ToString")))),
+                        Argument(
                             MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("writer"),
-                                IdentifierName(methodName)),
-                            ArgumentList(SeparatedList(
-                                [
-                                    Argument(
-                                        InvocationExpression(
-                                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                                MemberAccessExpression(SimpleMemberAccessExpression,
-                                                    IdentifierName("kvp"),
-                                                    IdentifierName("Key")),
-                                                IdentifierName("ToString")))),
-                                    Argument(
-                                        MemberAccessExpression(SimpleMemberAccessExpression,
-                                            IdentifierName("kvp"),
-                                            IdentifierName("Value"))),
-                                ])))));
+                                IdentifierName("kvp"),
+                                IdentifierName("Value"))),
+                    ]));
                 break;
             case MemberType.ComplexObject:
                 state.TypesToGenerate.Add(member.ElementType);
 
                 statements.Add(
-                    ExpressionStatement(
-                        InvocationExpression(
-                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("writer"),
-                                IdentifierName("WritePropertyName")),
-                            ArgumentList(SeparatedList(
-                            [
-                                Argument(
-                                    InvocationExpression(
-                                        MemberAccessExpression(SimpleMemberAccessExpression,
-                                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                                IdentifierName("kvp"),
-                                                IdentifierName("Key")),
-                                            IdentifierName("ToString")))),
-                            ])))));
+                    InvokeMethod("writer", "WritePropertyName",
+                    [
+                        Argument(
+                            InvocationExpression(
+                                MemberAccessExpression(SimpleMemberAccessExpression,
+                                    MemberAccessExpression(SimpleMemberAccessExpression,
+                                        IdentifierName("kvp"),
+                                        IdentifierName("Key")),
+                                    IdentifierName("ToString")))),
+                    ]));
 
                 statements.Add(
-                    ExpressionStatement(
-                        InvocationExpression(IdentifierName("Write"),
-                            ArgumentList(SeparatedList(
-                                [
-                                    Argument(IdentifierName("writer")),
-                                    Argument(
-                                        MemberAccessExpression(SimpleMemberAccessExpression,
-                                            IdentifierName("kvp"),
-                                            IdentifierName("Value"))),
-                                ])))));
+                    InvokeMethod("Write",
+                    [
+                        Argument(IdentifierName("writer")),
+                        Argument(
+                            MemberAccessExpression(SimpleMemberAccessExpression,
+                                IdentifierName("kvp"),
+                                IdentifierName("Value"))),
+                    ]));
                 break;
         }
 
         stmts.Add(
-             IfStatement(
+            IfStatement(
                 BinaryExpression(NotEqualsExpression,
                     MemberAccessExpression(SimpleMemberAccessExpression,
                         IdentifierName("obj"),
                         IdentifierName(member.Name)),
                     LiteralExpression(NullLiteralExpression)),
                 Block(
-                    ExpressionStatement(
-                        InvocationExpression(
-                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("writer"),
-                                IdentifierName("WriteStartObject")))),
+                    InvokeMethod("writer", "WriteStartObject"),
                     ForEachStatement(
                         ParseTypeName("var"),
                             "kvp",
@@ -194,17 +154,7 @@ static partial class Emitter
                             IdentifierName("obj"),
                             IdentifierName(member.Name)),
                             Block(statements)),
-                    ExpressionStatement(
-                        InvocationExpression(
-                            MemberAccessExpression(SimpleMemberAccessExpression,
-                                IdentifierName("writer"),
-                                IdentifierName("WriteEndObject"))))),
-                ElseClause(
-                    Block(
-                        ExpressionStatement(
-                            InvocationExpression(
-                                MemberAccessExpression(SimpleMemberAccessExpression,
-                                    IdentifierName("writer"),
-                                    IdentifierName("WriteNullValue"))))))));
+                    InvokeMethod("writer", "WriteEndObject")),
+                ElseClause(Block(InvokeMethod("writer", "WriteNullValue")))));
     }
 }
